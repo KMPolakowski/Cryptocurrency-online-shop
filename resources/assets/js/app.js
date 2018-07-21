@@ -41,7 +41,7 @@ Vue.http.headers.common['X-CSRF-TOKEN'] = document.head.querySelector('meta[name
 
 
 const routes = [{
-        path: '/home',
+        path: '/',
         component: home
     },
     {
