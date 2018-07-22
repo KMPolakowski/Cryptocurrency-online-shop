@@ -18,10 +18,9 @@
         "lodash": "^4.17.4",
         "popper.js": "^1.12",
         "vue": "^2.5.16",
-        "vue-input-number": "^0.1.5"
-    },
-    "dependencies": {
+        "vue-input-number": "^0.1.5",
         "vue-resource": "^1.5.1",
         "vue-router": "^3.0.1"
-    }
+    },
+    "dependencies": {}
 }

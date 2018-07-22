@@ -8,7 +8,7 @@ require('./bootstrap');
 
 window.Vue = require('vue');
 
-import Vue from 'vue'
+
 import VueRouter from 'vue-router'
 
 import VueResource from 'vue-resource'
@@ -23,14 +23,10 @@ Vue.use(VueResource)
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
+
 Vue.component('home', require('./components/Home.vue'));
 
 
-Vue.component('buy', require('./components/Buy.vue'));
-
-Vue.component('input-number', require('vue-input-number'));
-
-Vue.component('sell', require('./components/Sell.vue'));
 
 let buy = require('./components/Buy.vue');
 let home = require('./components/Home.vue');
@@ -59,11 +55,23 @@ const routes = [{
 
 ]
 
-const router = ({
+const router = new VueRouter({
     mode: 'history',
     routes
 })
 
 const app = new Vue({
+    el: '#app',
+    components: {
+        home,
+        buy,
+        sell,
+        wallet
+    },
     router
-}).$mount('#app');
+
+});
+
+const app2 = new Vue({
+    el: '#app2'
+});

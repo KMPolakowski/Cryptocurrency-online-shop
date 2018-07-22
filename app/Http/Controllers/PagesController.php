@@ -20,7 +20,7 @@ class PagesController extends Controller
 
     public function __construct()
     {
-        // $this->middleware('auth', ['except' => ['home']]);
+        $this->middleware('auth', ['except' => ['home']]);
     }
 
 
@@ -38,6 +38,11 @@ class PagesController extends Controller
         return view('pages.index');
     }
 
+    public function home()
+    {
+        return view('pages.home');
+    }
+
     public function buy()
     {
         $getPrices = new getPrices(); 
@@ -52,10 +57,6 @@ class PagesController extends Controller
         //on the buy page an alert with the new price offering to accept or cancel will display (No websocket stuff <33)
     }
 
-    public function home()
-    {
-        return view('pages.home');
-    }
 
     public function sell()
     {

@@ -27,11 +27,11 @@
             <div class="container">
 
                 @guest
-                <a href="/" class="navbar-brand">
+                <a href="/home" class="navbar-brand">
                     {{ config('app.name', 'Laravel') }}
                 </a> @else
 
-                <router-link to="/home" class="navbar-brand">
+                <router-link to="/" class="navbar-brand">
                     {{ config('app.name', 'Laravel') }}
 
                 </router-link>
@@ -46,13 +46,13 @@
                         <li class="nav-item">
                             <router-link to="/buy" class="nav-link">
                                 Buy
-                                </rotuer-link>
+                            </router-link>
                         </li>
 
                         <li class="nav-item">
                             <router-link to="/sell" class="nav-link">
                                 Sell
-                                </rotuer-link>
+                            </router-link>
                         </li>
                     </ul>
                     @endguest
@@ -107,6 +107,7 @@
 
 
         <main class="py-4">
+
             @yield('content')
         </main>
 

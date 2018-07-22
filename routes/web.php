@@ -11,7 +11,7 @@
 |
 */
 Route::get('/', 'PagesController@index');
-Route::get('/home', 'PagesController@index');
+Route::get('/home', 'PagesController@home');
 Route::get('buy', 'PagesController@index');
 Route::get('sell', 'PagesController@index');
 Route::post('sell', 'PaymentController@sell');
