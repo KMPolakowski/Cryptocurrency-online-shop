@@ -6,38 +6,18 @@
     <table class="table-striped w-100 p-3">
                 <thead class="thead-light">
                     <tr>
-                        <th scope="col"> #</th>
                         <th scope="col"> Name </th>
 
                         <th scope="col"> Symbol </th>
 
-
-                        <!-- <th scope="col"> Price </th>
-                        <th scope="col"> Volume 24h </th>
-                        <th scope="col"> Circulating Supply </th>
-                        <th scope="col"> Change 24h </th>
-                        <th scope="col"> Price Graph 7d </th> -->
-
                     </tr>
                 </thead>
                 <tbody>
 
 
-                    <tr v-for="item in orderedCryptoData" v-bind:key="item.rank">
-                        <th scope="row"> {{ item.rank }} </th>
-                        <td> {{item.symbol}} </td>
-                        <td> {{item.name}} </td>
-                        <td> <a class="btn btn-light" @click="showMore(item.rank)"> See more </a> </td>
-
-                        <!-- <td> <img v-bind:src = "'https://s2.coinmarketcap.com/static/img/coins/16x16/' + item.id + '.png'"> {{item.name}} </td> -->
-
-                        <!-- <td>{{item.quotes.EUR.market_cap}} </td>
-                        <td>{{item.quotes.EUR.price}} </td>
-                        <td>{{item.quotes.EUR.volume_24h}} </td>
-                        <td>{{item.circulating_supply}} </td>
-                        <td v-if="item.quotes.EUR.percent_change_24h >= 0" style="color: green">{{item.quotes.EUR.percent_change_24h}} % </td>
-                        <td v-else style ="color: red">{{item.quotes.EUR.percent_change_24h}} % </td>
-                        <td> <img v-bind:src= "'https://s2.coinmarketcap.com/generated/sparklines/web/7d/usd/' + item.id +'.png'"> </td> -->
+                    <tr v-for="item in orderedCryptoData" v-bind:key="item.rank" @click="showMore(item.rank)">
+                        <td> {{item.name}}</td>
+                        <td> {{item.symbol}}  </td>
                     </tr>
 
 
@@ -45,39 +25,6 @@
 
     </table>
 
-    <!-- <modal name="see-more">
-      <table class="table-striped w-100 p-3">
-                <thead class="thead-light">
-                    <tr>
-                        <th scope="col"> #</th>
-                        <th scope="col"> Name </th>
-                        <th scope="col"> Market Cap </th>                     
-                        <th scope="col"> Price </th>
-                        <th scope="col"> Volume 24h </th>
-                        <th scope="col"> Circulating Supply </th>
-                        <th scope="col"> Change 24h </th>
-                        <th scope="col"> Price Graph 7d </th>
-
-                    </tr>
-                </thead>
-                <tbody>
-
-                    <tr v-for="item in orderedCryptoData" v-if="item.rank == selectedCoin" v-bind:key="item.rank">
-                        <th scope="row"> {{ item.rank }} </th>               
-                        <td> <img v-bind:src = "'https://s2.coinmarketcap.com/static/img/coins/16x16/' + item.id + '.png'"> {{item.name}} </td>
-                        <td>{{item.quotes.EUR.market_cap}} </td>
-                        <td>{{item.quotes.EUR.price}} </td>
-                        <td>{{item.quotes.EUR.volume_24h}} </td>
-                        <td>{{item.circulating_supply}} </td>
-                        <td v-if="item.quotes.EUR.percent_change_24h >= 0" style="color: green">{{item.quotes.EUR.percent_change_24h}} % </td>
-                        <td v-else style ="color: red">{{item.quotes.EUR.percent_change_24h}} % </td>
-                        <td> <img v-bind:src= "'https://s2.coinmarketcap.com/generated/sparklines/web/7d/usd/' + item.id +'.png'"> </td>
-                    </tr>
-
-                </tbody>
-
-    </table>
-    </modal> -->
 
 </div>
 
@@ -97,6 +44,8 @@ export default {
 
   methods: {
     fetchData() {
+      //Gets data from coinmarketcap API through my own API
+
       this.$http.get("api/dashboard").then(function(data) {
         this.cryptoData = data.body.data;
         window.console.log(this.orderedCryptoData);

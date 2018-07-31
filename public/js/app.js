@@ -52600,59 +52600,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
@@ -52668,6 +52615,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
   methods: {
     fetchData: function fetchData() {
+      //Gets data from coinmarketcap API through my own API
+
       this.$http.get("api/dashboard").then(function (data) {
         this.cryptoData = data.body.data;
         window.console.log(this.orderedCryptoData);
@@ -52716,30 +52665,22 @@ var render = function() {
         _c(
           "tbody",
           _vm._l(_vm.orderedCryptoData, function(item) {
-            return _c("tr", { key: item.rank }, [
-              _c("th", { attrs: { scope: "row" } }, [
-                _vm._v(" " + _vm._s(item.rank) + " ")
-              ]),
-              _vm._v(" "),
-              _c("td", [_vm._v(" " + _vm._s(item.symbol) + " ")]),
-              _vm._v(" "),
-              _c("td", [_vm._v(" " + _vm._s(item.name) + " ")]),
-              _vm._v(" "),
-              _c("td", [
-                _c(
-                  "a",
-                  {
-                    staticClass: "btn btn-light",
-                    on: {
-                      click: function($event) {
-                        _vm.showMore(item.rank)
-                      }
-                    }
-                  },
-                  [_vm._v(" See more ")]
-                )
-              ])
-            ])
+            return _c(
+              "tr",
+              {
+                key: item.rank,
+                on: {
+                  click: function($event) {
+                    _vm.showMore(item.rank)
+                  }
+                }
+              },
+              [
+                _c("td", [_vm._v(" " + _vm._s(item.name))]),
+                _vm._v(" "),
+                _c("td", [_vm._v(" " + _vm._s(item.symbol) + "  ")])
+              ]
+            )
           })
         )
       ])
@@ -52753,8 +52694,6 @@ var staticRenderFns = [
     var _c = _vm._self._c || _h
     return _c("thead", { staticClass: "thead-light" }, [
       _c("tr", [
-        _c("th", { attrs: { scope: "col" } }, [_vm._v(" #")]),
-        _vm._v(" "),
         _c("th", { attrs: { scope: "col" } }, [_vm._v(" Name ")]),
         _vm._v(" "),
         _c("th", { attrs: { scope: "col" } }, [_vm._v(" Symbol ")])
