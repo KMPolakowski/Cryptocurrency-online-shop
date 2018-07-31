@@ -9,7 +9,49 @@
                         <th scope="col"> #</th>
                         <th scope="col"> Name </th>
 
-                        <th scope="col"> Market Cap </th>
+                        <th scope="col"> Symbol </th>
+
+
+                        <!-- <th scope="col"> Price </th>
+                        <th scope="col"> Volume 24h </th>
+                        <th scope="col"> Circulating Supply </th>
+                        <th scope="col"> Change 24h </th>
+                        <th scope="col"> Price Graph 7d </th> -->
+
+                    </tr>
+                </thead>
+                <tbody>
+
+
+                    <tr v-for="item in orderedCryptoData" v-bind:key="item.rank">
+                        <th scope="row"> {{ item.rank }} </th>
+                        <td> {{item.symbol}} </td>
+                        <td> {{item.name}} </td>
+                        <td> <a class="btn btn-light" @click="showMore(item.rank)"> See more </a> </td>
+
+                        <!-- <td> <img v-bind:src = "'https://s2.coinmarketcap.com/static/img/coins/16x16/' + item.id + '.png'"> {{item.name}} </td> -->
+
+                        <!-- <td>{{item.quotes.EUR.market_cap}} </td>
+                        <td>{{item.quotes.EUR.price}} </td>
+                        <td>{{item.quotes.EUR.volume_24h}} </td>
+                        <td>{{item.circulating_supply}} </td>
+                        <td v-if="item.quotes.EUR.percent_change_24h >= 0" style="color: green">{{item.quotes.EUR.percent_change_24h}} % </td>
+                        <td v-else style ="color: red">{{item.quotes.EUR.percent_change_24h}} % </td>
+                        <td> <img v-bind:src= "'https://s2.coinmarketcap.com/generated/sparklines/web/7d/usd/' + item.id +'.png'"> </td> -->
+                    </tr>
+
+
+                </tbody>
+
+    </table>
+
+    <!-- <modal name="see-more">
+      <table class="table-striped w-100 p-3">
+                <thead class="thead-light">
+                    <tr>
+                        <th scope="col"> #</th>
+                        <th scope="col"> Name </th>
+                        <th scope="col"> Market Cap </th>                     
                         <th scope="col"> Price </th>
                         <th scope="col"> Volume 24h </th>
                         <th scope="col"> Circulating Supply </th>
@@ -20,9 +62,8 @@
                 </thead>
                 <tbody>
 
-
-                    <tr v-for="item in orderedCryptoData" v-bind:key="item.rank">
-                        <th scope="row"> {{ item.rank}} </th>
+                    <tr v-for="item in orderedCryptoData" v-if="item.rank == selectedCoin" v-bind:key="item.rank">
+                        <th scope="row"> {{ item.rank }} </th>               
                         <td> <img v-bind:src = "'https://s2.coinmarketcap.com/static/img/coins/16x16/' + item.id + '.png'"> {{item.name}} </td>
                         <td>{{item.quotes.EUR.market_cap}} </td>
                         <td>{{item.quotes.EUR.price}} </td>
@@ -33,19 +74,21 @@
                         <td> <img v-bind:src= "'https://s2.coinmarketcap.com/generated/sparklines/web/7d/usd/' + item.id +'.png'"> </td>
                     </tr>
 
-
                 </tbody>
 
     </table>
+    </modal> -->
 
 </div>
+
 </template>
 
 <script>
 export default {
   data() {
     return {
-      cryptoData: {}
+      cryptoData: {},
+      selectedCoin: {}
     };
   },
   created() {
@@ -55,15 +98,81 @@ export default {
   methods: {
     fetchData() {
       this.$http.get("api/dashboard").then(function(data) {
-        // for (let i = 1; i < 101; i++) {
-        //   console.log(data.body.data[i]);
-        // }
-
         this.cryptoData = data.body.data;
-        // Object.keys(data.body.data).forEach(function(key, index) {
-        //   console.log(this[key].rank);
-        // }, data.body.data);
+        window.console.log(this.orderedCryptoData);
       });
+    },
+    showMore(index) {
+      this.selectedCoin = index;
+
+      this.$modal.show(
+        {
+          template: `
+    <table class="table-striped w-100 p-3">
+               
+                <tbody  v-for="item in coins" v-if="item.rank == index" v-bind:key="item.rank">
+                  
+                        <tr>
+                        <td> # </td>   
+                        <td> {{ item.rank }} </td>               
+                        </tr>
+
+                        <tr>
+                        <td scope="row"> Name </td>  
+                        <td> <img v-bind:src = "'https://s2.coinmarketcap.com/static/img/coins/16x16/' + item.id + '.png'"> {{item.name}} </td>
+                        </tr>
+
+                        <tr>
+                        <td scope="row"> Market Cap </td>  
+
+                        <td>{{item.quotes.EUR.market_cap}} </td>
+                        </tr>
+
+                        <tr>
+                        <td scope="row"> Price in EUR </td>  
+                        <td>{{item.quotes.EUR.price}} </td>
+                        </tr>
+
+                        <tr>
+                        <td scope="row"> 24h Volume </td>  
+                        <td>{{item.quotes.EUR.volume_24h}} </td>
+                        </tr>
+
+                        <tr>
+                        <td scope="row"> Circulating Supply </td>  
+                        <td>{{item.circulating_supply}} </td>
+                        </tr>
+
+                        <tr>
+                        <td scope="row"> percent_change_24h </td>  
+                        <td v-if="item.quotes.EUR.percent_change_24h >= 0" style="color: green">{{item.quotes.EUR.percent_change_24h}} % </td>
+                        <td v-else style ="color: red">{{item.quotes.EUR.percent_change_24h}} % </td>
+                        </tr>
+
+                        <tr>
+                        <td scope="row"> 7d graph </td>  
+                        <td> <img v-bind:src= "'https://s2.coinmarketcap.com/generated/sparklines/web/7d/usd/' + item.id +'.png'"> </td>
+                        </tr>
+
+                </tbody>
+
+    </table>
+  `,
+          props: ["coins", "index"]
+        },
+        {
+          coins: this.orderedCryptoData,
+          index: index
+        },
+        {
+          height: "auto"
+        },
+        {
+          "before-close": event => {
+            console.log("this will be called before the modal closes");
+          }
+        }
+      );
     }
   },
   computed: {
@@ -73,4 +182,6 @@ export default {
   }
 };
 </script>
+
+
 

@@ -14,14 +14,20 @@
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}" defer></script>
 
+
+
     <!-- Fonts -->
     <link rel="dns-prefetch" href="https://fonts.gstatic.com">
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+
+
 </head>
 
 <body>
+    <script src="https://js.stripe.com/v3/"></script>
+
     <div id="app">
         <nav class="navbar navbar-expand-md navbar-light navbar-laravel">
             <div class="container">
@@ -101,22 +107,24 @@
                         </li>
                         @endguest
                     </ul>
+
                 </div>
             </div>
         </nav>
 
 
         <main class="py-4">
-
             @yield('content')
         </main>
 
 
     </div>
 
-    <script src="{{asset('js/app.js')}}">
 
-    </script>
+    <script src="{{asset('js/app.js')}}"></script>
+
+
+
 </body>
 
 </html>

@@ -13,6 +13,13 @@ import VueRouter from 'vue-router'
 
 import VueResource from 'vue-resource'
 
+import VModal from 'vue-js-modal'
+
+
+Vue.use(VModal, {
+    dynamic: true,
+    injectModalsContainer: true
+})
 Vue.use(VueRouter)
 Vue.use(VueResource)
 
