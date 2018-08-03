@@ -85,8 +85,8 @@ class PayPal
     ->setInvoiceNumber(uniqid());
 
         $redirectUrls = new RedirectUrls();
-    $redirectUrls->setReturnUrl("http://buycryptos/buy/pay/success")
-    ->setCancelUrl("http://buycryptos");
+    $redirectUrls->setReturnUrl("http://buycryptos.com/buy/pay/success")
+    ->setCancelUrl("http://buycryptos.com");
 
 
     $payment = new Payment();

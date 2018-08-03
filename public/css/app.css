@@ -10485,3 +10485,17 @@ a.text-dark:focus {
   }
 }
 
+.CoinPagination {
+  width: 265px;
+}
+
+#currencySwitcher {
+  width: 85px;
+  margin-bottom: 10px;
+}
+
+#languageSwitcher {
+  width: 165px;
+  margin-bottom: 10px;
+}
+

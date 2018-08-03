@@ -18,6 +18,8 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 
-Route::get('dashboard', 'ApiController@getDashboard');
+Route::get('dashboard/{page}/{selectedCurrency}', 'ApiController@getDashboard');
+
+
 
 

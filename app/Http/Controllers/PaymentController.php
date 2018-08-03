@@ -27,9 +27,12 @@ class PaymentController extends Controller
 
     public function getCryptoNames()
     {
-        // $cryptonames = DB::getSchemaBuilder()->getColumnListing('cryptos');
 
-        // array_pop($cryptonames);
+        $getPrices = new getPrices(); 
+
+        
+        $getPrices->fetchPrices();
+
 
         $response = array();
 
@@ -91,6 +94,9 @@ class PaymentController extends Controller
 
         $sellQuantity = $request->quantity;
 
+        if($sellQuantity > 0)
+        {
+
         $cryptoOwned = $crypto->$selectedCrypto;
 
 
@@ -98,7 +104,7 @@ class PaymentController extends Controller
         {
             $cryptoOwned = $crypto->$selectedCrypto;
 
-            $crypto->$selectedCrypto = round($cryptoOwned - $sellQuantity, 2);
+            $crypto->$selectedCrypto = round($cryptoOwned - $sellQuantity, 8);
             $crypto->save();
 
 
@@ -126,6 +132,13 @@ class PaymentController extends Controller
         {
             return 0;
         }
+
+    }
+
+    else
+    {
+        return 0;
+    }
 
         
     }

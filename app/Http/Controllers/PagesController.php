@@ -54,7 +54,7 @@ class PagesController extends Controller
         return view('pages.buy');
 
         //when clicking the pay button the pricges will be updated and in case of difference with the price
-        //on the buy page an alert with the new price offering to accept or cancel will display (No websocket stuff <33)
+        //on the buy page an alert with the new price offering to accept or cancel will display
     }
 
 

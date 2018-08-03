@@ -36,7 +36,7 @@
 <div class="input-group-prepend">
     <span class="input-group-text">Amount in EUR</span>
   </div>
-        <input type="text" class="form-control" v-model="newAmount" placeholder="amount" >
+        <div class="d-inline-flex p-2 bd-highlight"> {{ newAmount }} </div>
         
    
 
@@ -78,27 +78,33 @@ export default {
         .catch(err => console.log(err));
     },
     sell() {
-      this.$http.post("sell", this.transaction).then(function(data) {
-        console.log(data.body);
-        if (isNaN(data.body)) {
-          window.location.href = data.body;
-        } else if (data.body == 0) {
-          window.alert("Not enough cryptocurrency in your wallet.");
-        } else {
-          if (
-            confirm(
-              "The prices just changed. New Price: " +
-                this.round(data.body) +
-                "| New Amout: " +
-                this.round(data.body * this.transaction.quantity) +
-                "| Do you accept the transaction? "
-            )
-          ) {
-            this.transaction.selectedCrypto[1] = this.round(data.body);
-            this.sell();
+      if (
+        typeof this.transaction.selectedCrypto[0] !== "undefined" &&
+        this.transaction.quantity !== null &&
+        this.transaction.quantity > 0
+      ) {
+        this.$http.post("sell", this.transaction).then(function(data) {
+          console.log(data.body);
+          if (isNaN(data.body)) {
+            window.location.href = data.body;
+          } else if (data.body == 0) {
+            window.alert("Not enough cryptocurrency in your wallet.");
+          } else {
+            if (
+              confirm(
+                "The prices just changed. New Price: " +
+                  this.round(data.body) +
+                  "| New Amout: " +
+                  this.round(data.body * this.transaction.quantity) +
+                  "| Do you accept the transaction? "
+              )
+            ) {
+              this.transaction.selectedCrypto[1] = this.round(data.body);
+              this.sell();
+            }
           }
-        }
-      });
+        });
+      }
     },
     round(amount) {
       return Math.round(amount * 100) / 100;
@@ -113,9 +119,11 @@ export default {
       ) {
         return "";
       } else {
-        return this.round(
-          this.transaction.quantity * this.transaction.selectedCrypto[1]
-        );
+        if (this.transaction.quantity > 0) {
+          return this.round(
+            this.transaction.quantity * this.transaction.selectedCrypto[1]
+          );
+        }
       }
     }
   }

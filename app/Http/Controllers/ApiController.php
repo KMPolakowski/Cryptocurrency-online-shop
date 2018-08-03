@@ -27,14 +27,23 @@ class ApiController extends Controller
         return $cryptonames; 
     }
 
-    public function getDashboard()
+    public function getDashboard($page, $selectedCurrency)
     {
         $client = new Client(); //GuzzleHttp\Client
+        
+        $pageIndex = 1;
+        
 
-        $response = $client->get('https://api.coinmarketcap.com/v2/ticker/?limit=100&sort=rank&convert=EUR');
+        if($page != 1)
+        {
+            $pageIndex = ($page-1) * 100 +1;
+        }
 
-        return $response->getBody();
+        $coins = ($client->get('https://api.coinmarketcap.com/v2/ticker/?start='.$pageIndex.'&limit=100&sort=rank&convert='.$selectedCurrency))->getBody();
 
+
+        return $coins;
     }
+
 
 }

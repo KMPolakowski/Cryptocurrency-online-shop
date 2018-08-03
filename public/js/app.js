@@ -52600,44 +52600,181 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
-      cryptoData: {},
-      selectedCoin: {}
+      cryptoData: [],
+      selectedCoin: {},
+      pagination: {
+        current_page: 1,
+        last_page: 18,
+        next_page: 2,
+        prev_page: 18
+      },
+      selectedCurrency: "EUR",
+      showMenu: true,
+      languages: [["English", 0], ["Deutsch", 1], ["Polski", 2]],
+      text: {
+        Name: ["Name", "Name", "Nazwa"],
+        Symbol: ["Symbol", "Symbol", "Skrót"],
+        MarketCap: ["Market Cap", "Marktkap.", "Kap. rynku"],
+        Price: ["Price", "Preis", "Cena"],
+        "Volume(24h)": ["Volume(24h)", "Volumen(24h)", "Objętość (24godz.)"],
+        CirculatingSupply: ["Circulating Supply(24h)", "Umlaufversorgung", "Podaż rynkowa"],
+        "Change(24h)": ["Change(24H)", "Änderung(24h)", "Zmiana(24godz.)"],
+        "7dgraph": ["7d graph", "7t Graph", "wykres 7-dniowy"]
+      },
+
+      selectedLang: ["English", 0],
+      dataHasLoaded: false,
+      currencies: ["USD", "PLN", "EUR", "AUD", "BRL", "CAD", "CHF", "CLP", "CNY", "CZK", "DKK", "GBP", "HKD", "HUF", "IDR", "ILS", "INR", "JPY", "KRW", "MXN", "MYR", "NOK", "NZD", "PHP", "PKR", "RUB", "SEK", "SGD", "THB", "TRY", "TWD", "ZAR"]
     };
   },
   created: function created() {
-    this.fetchData();
+    this.fetchData(this.pagination.current_page);
+    // window.console.log(this.pagination.current_page);
   },
 
 
   methods: {
-    fetchData: function fetchData() {
-      //Gets data from coinmarketcap API through my own API
+    fetchAll: function fetchAll() {
+      this.dataHasLoaded = false;
+      var newCryptoData = [];
 
-      this.$http.get("api/dashboard").then(function (data) {
+      window.console.log(this.cryptoData);
+
+      for (var i = 1; i < 19; i++) {
+        this.$http.get("api/dashboard/" + i + "/" + this.selectedCurrency).then(function (data) {
+          Object.keys(data.body.data).forEach(function (key) {
+            newCryptoData.push(data.body.data[key]);
+          });
+        });
+      }
+      this.dataHasLoaded = true;
+
+      // window.console.log(newCryptoData);
+      this.showMenu = false;
+      this.cryptoData = newCryptoData;
+    },
+    updateCoins: function updateCoins() {
+      if (this.showMenu) {
+        this.fetchData(this.pagination.current_page);
+      } else {
+        this.fetchAll();
+      }
+    },
+    fetchData: function fetchData(page) {
+      this.showMenu = true;
+
+      this.dataHasLoaded = false;
+      //Gets data from coinmarketcap API through my own API
+      this.$http.get("api/dashboard/" + page + "/" + this.selectedCurrency).then(function (data) {
         this.cryptoData = data.body.data;
-        window.console.log(this.orderedCryptoData);
+        this.dataHasLoaded = true;
       });
+
+      // make Pagination
+
+      if (page == 1) {
+        this.pagination.current_page = page;
+        this.pagination.prev_page = 18;
+        this.pagination.next_page = page + 1;
+      } else if (page == 18) {
+        this.pagination.current_page = page;
+        this.pagination.prev_page = page - 1;
+        this.pagination.next_page = 1;
+      } else {
+        this.pagination.current_page = page;
+        this.pagination.prev_page = page - 1;
+        this.pagination.next_page = page + 1;
+      }
     },
     showMore: function showMore(index) {
-      this.selectedCoin = index;
+      if (this.dataHasLoaded) {
+        this.selectedCoin = index;
 
-      this.$modal.show({
-        template: "\n    <table class=\"table-striped w-100 p-3\">\n               \n                <tbody  v-for=\"item in coins\" v-if=\"item.rank == index\" v-bind:key=\"item.rank\">\n                  \n                        <tr>\n                        <td> # </td>   \n                        <td> {{ item.rank }} </td>               \n                        </tr>\n\n                        <tr>\n                        <td scope=\"row\"> Name </td>  \n                        <td> <img v-bind:src = \"'https://s2.coinmarketcap.com/static/img/coins/16x16/' + item.id + '.png'\"> {{item.name}} </td>\n                        </tr>\n\n                        <tr>\n                        <td scope=\"row\"> Market Cap </td>  \n\n                        <td>{{item.quotes.EUR.market_cap}} </td>\n                        </tr>\n\n                        <tr>\n                        <td scope=\"row\"> Price in EUR </td>  \n                        <td>{{item.quotes.EUR.price}} </td>\n                        </tr>\n\n                        <tr>\n                        <td scope=\"row\"> 24h Volume </td>  \n                        <td>{{item.quotes.EUR.volume_24h}} </td>\n                        </tr>\n\n                        <tr>\n                        <td scope=\"row\"> Circulating Supply </td>  \n                        <td>{{item.circulating_supply}} </td>\n                        </tr>\n\n                        <tr>\n                        <td scope=\"row\"> percent_change_24h </td>  \n                        <td v-if=\"item.quotes.EUR.percent_change_24h >= 0\" style=\"color: green\">{{item.quotes.EUR.percent_change_24h}} % </td>\n                        <td v-else style =\"color: red\">{{item.quotes.EUR.percent_change_24h}} % </td>\n                        </tr>\n\n                        <tr>\n                        <td scope=\"row\"> 7d graph </td>  \n                        <td> <img v-bind:src= \"'https://s2.coinmarketcap.com/generated/sparklines/web/7d/usd/' + item.id +'.png'\"> </td>\n                        </tr>\n\n                </tbody>\n\n    </table>\n  ",
-        props: ["coins", "index"]
-      }, {
-        coins: this.orderedCryptoData,
-        index: index
-      }, {
-        height: "auto"
-      }, {
-        "before-close": function beforeClose(event) {
-          console.log("this will be called before the modal closes");
-        }
-      });
+        this.$modal.show({
+          template: "\n    <table class=\"table-striped w-100 p-3\">\n               \n                <tbody  v-for=\"item in coins\" v-if=\"item.rank == index\" v-bind:key=\"item.rank\">\n                  \n                        <tr>\n                        <td> # </td>   \n                        <td> {{ item.rank }} </td>               \n                        </tr>\n\n                        <tr>\n                        <td scope=\"row\"> {{text.Name[selectedLang[1]]}} </td>  \n                        <td> <img v-bind:src = \"'https://s2.coinmarketcap.com/static/img/coins/16x16/' + item.id + '.png'\"> {{item.name}} </td>\n                        </tr>\n\n                        <tr>\n                        <td scope=\"row\"> {{text.MarketCap[selectedLang[1]]}} </td>  \n\n                        <td v-if=\"item.quotes[selectedCurrency].market_cap != null\">{{item.quotes[selectedCurrency].market_cap.toLocaleString('de-DE', { style: 'currency', currency: selectedCurrency })}} </td>\n                        <td v-else> ? </td>\n                        </tr>\n\n                        <tr>\n                        <td scope=\"row\"> {{text.Price[selectedLang[1]]}}  </td>  \n                        <td v-if=\"item.quotes[selectedCurrency].price != null\">{{item.quotes[selectedCurrency].price.toLocaleString('de-DE', { style: 'currency', currency: selectedCurrency })}} </td>\n                        <td v-else> ? </td>\n                        </tr>\n\n                        <tr>\n                        <td scope=\"row\"> {{text['Volume(24h)'][selectedLang[1]]}} </td>  \n                        <td v-if=\"item.quotes[selectedCurrency].volume_24h != null\">{{item.quotes[selectedCurrency].volume_24h.toLocaleString('de-DE', { style: 'currency', currency: selectedCurrency })}} </td>\n                        <td v-else> ? </td>\n                        </tr>\n\n                        <tr>\n                        <td scope=\"row\"> {{text.CirculatingSupply[selectedLang[1]]}} </td>  \n                        <td>{{item.circulating_supply}} </td>\n                        </tr>\n\n                        <tr>\n                        <td scope=\"row\"> {{text['Change(24h)'][selectedLang[1]]}} </td>  \n                        <td v-if=\"item.quotes[selectedCurrency].percent_change_24h >= 0\" style=\"color: green\">{{item.quotes[selectedCurrency].percent_change_24h}} % </td>\n                        <td v-else style =\"color: red\">{{item.quotes[selectedCurrency].percent_change_24h}} % </td>\n                        </tr>\n\n                        <tr>\n                        <td scope=\"row\"> {{text['7dgraph'][selectedLang[1]]}} </td>  \n                        <td> <img v-bind:src= \"'https://s2.coinmarketcap.com/generated/sparklines/web/7d/usd/' + item.id +'.png'\"> </td>\n                        </tr>\n\n                </tbody>\n\n    </table>\n  ",
+          props: ["coins", "index", "selectedCurrency", "text", "selectedLang"]
+        }, {
+          coins: this.orderedCryptoData,
+          index: index,
+          selectedCurrency: this.selectedCurrency,
+          text: this.text,
+          selectedLang: this.selectedLang
+        }, {
+          height: "auto"
+        }, {
+          "before-close": function beforeClose(event) {
+            console.log("this will be called before the modal closes");
+          }
+        });
+      }
     }
   },
   computed: {
@@ -52659,8 +52796,200 @@ var render = function() {
     "div",
     { staticClass: "container", attrs: { id: "dashboard-wrapper" } },
     [
+      _c("h3", [
+        _vm._v(
+          " Please don't overuse View all (or just do it slowly), because CoinMarketCap will ban my server (workaround underway) "
+        )
+      ]),
+      _vm._v(" "),
+      _c(
+        "nav",
+        {
+          staticClass: "ml-auto mt-5 CoinPagination",
+          attrs: { "aria-label": "Page navigation example" }
+        },
+        [
+          _c(
+            "select",
+            {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.selectedCurrency,
+                  expression: "selectedCurrency"
+                }
+              ],
+              staticClass: "custom-select",
+              attrs: { id: "currencySwitcher", placeholder: "cryptocurrency" },
+              on: {
+                change: [
+                  function($event) {
+                    var $$selectedVal = Array.prototype.filter
+                      .call($event.target.options, function(o) {
+                        return o.selected
+                      })
+                      .map(function(o) {
+                        var val = "_value" in o ? o._value : o.value
+                        return val
+                      })
+                    _vm.selectedCurrency = $event.target.multiple
+                      ? $$selectedVal
+                      : $$selectedVal[0]
+                  },
+                  function($event) {
+                    _vm.updateCoins()
+                  }
+                ]
+              }
+            },
+            _vm._l(_vm.currencies, function(currency) {
+              return _c(
+                "option",
+                { key: currency, domProps: { value: currency } },
+                [_vm._v(" " + _vm._s(currency) + " ")]
+              )
+            })
+          ),
+          _vm._v(" "),
+          _c(
+            "select",
+            {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.selectedLang,
+                  expression: "selectedLang"
+                }
+              ],
+              staticClass: "custom-select",
+              attrs: { id: "languageSwitcher" },
+              on: {
+                change: function($event) {
+                  var $$selectedVal = Array.prototype.filter
+                    .call($event.target.options, function(o) {
+                      return o.selected
+                    })
+                    .map(function(o) {
+                      var val = "_value" in o ? o._value : o.value
+                      return val
+                    })
+                  _vm.selectedLang = $event.target.multiple
+                    ? $$selectedVal
+                    : $$selectedVal[0]
+                }
+              }
+            },
+            _vm._l(_vm.languages, function(language) {
+              return _c(
+                "option",
+                { key: language, domProps: { value: language } },
+                [_vm._v(" " + _vm._s(language[0]) + " ")]
+              )
+            })
+          ),
+          _vm._v(" "),
+          _vm.showMenu
+            ? _c("ul", { staticClass: "pagination" }, [
+                _c("li", { staticClass: "page-item" }, [
+                  _c(
+                    "a",
+                    {
+                      staticClass: "page-link",
+                      attrs: { href: "#" },
+                      on: {
+                        click: function($event) {
+                          _vm.fetchData(_vm.pagination.prev_page)
+                        }
+                      }
+                    },
+                    [_vm._v(" < ")]
+                  )
+                ]),
+                _vm._v(" "),
+                _c("li", { staticClass: "page-item disabled" }, [
+                  _c(
+                    "a",
+                    {
+                      staticClass: "page-link text-dark",
+                      attrs: { href: "#" }
+                    },
+                    [
+                      _vm._v(
+                        "Page " +
+                          _vm._s(_vm.pagination.current_page) +
+                          " of " +
+                          _vm._s(_vm.pagination.last_page)
+                      )
+                    ]
+                  )
+                ]),
+                _vm._v(" "),
+                _c("li", { staticClass: "page-item" }, [
+                  _c(
+                    "a",
+                    {
+                      staticClass: "page-link",
+                      attrs: { href: "#" },
+                      on: {
+                        click: function($event) {
+                          _vm.fetchData(_vm.pagination.next_page)
+                        }
+                      }
+                    },
+                    [_vm._v(">")]
+                  )
+                ]),
+                _vm._v(" "),
+                _c("li", { staticClass: "page-item" }, [
+                  _c(
+                    "a",
+                    {
+                      staticClass: "page-link",
+                      attrs: { href: "#" },
+                      on: {
+                        click: function($event) {
+                          _vm.fetchAll()
+                        }
+                      }
+                    },
+                    [_vm._v(" View all ")]
+                  )
+                ])
+              ])
+            : _c("ul", { staticClass: "pagination" }, [
+                _c("li", { staticClass: "page-item" }, [
+                  _c(
+                    "a",
+                    {
+                      staticClass: "page-link",
+                      attrs: { href: "#" },
+                      on: {
+                        click: function($event) {
+                          _vm.fetchData(1)
+                        }
+                      }
+                    },
+                    [_vm._v(" Back to Top 100 ")]
+                  )
+                ])
+              ])
+        ]
+      ),
+      _vm._v(" "),
       _c("table", { staticClass: "table-striped w-100 p-3" }, [
-        _vm._m(0),
+        _c("thead", { staticClass: "thead-light" }, [
+          _c("tr", [
+            _c("th", { attrs: { scope: "col" } }, [
+              _vm._v(" " + _vm._s(this.text.Name[_vm.selectedLang[1]]) + " ")
+            ]),
+            _vm._v(" "),
+            _c("th", { attrs: { scope: "col" } }, [
+              _vm._v(" " + _vm._s(this.text.Symbol[_vm.selectedLang[1]]) + " ")
+            ])
+          ])
+        ]),
         _vm._v(" "),
         _c(
           "tbody",
@@ -52669,6 +52998,7 @@ var render = function() {
               "tr",
               {
                 key: item.rank,
+                staticStyle: { cursor: "pointer" },
                 on: {
                   click: function($event) {
                     _vm.showMore(item.rank)
@@ -52683,24 +53013,106 @@ var render = function() {
             )
           })
         )
-      ])
+      ]),
+      _vm._v(" "),
+      _c(
+        "nav",
+        {
+          staticClass: "ml-auto mt-5 CoinPagination",
+          attrs: { "aria-label": "Page navigation example" }
+        },
+        [
+          _vm.showMenu
+            ? _c("ul", { staticClass: "pagination" }, [
+                _c("li", { staticClass: "page-item" }, [
+                  _c(
+                    "a",
+                    {
+                      staticClass: "page-link",
+                      attrs: { href: "#" },
+                      on: {
+                        click: function($event) {
+                          _vm.fetchData(_vm.pagination.prev_page)
+                        }
+                      }
+                    },
+                    [_vm._v(" < ")]
+                  )
+                ]),
+                _vm._v(" "),
+                _c("li", { staticClass: "page-item disabled" }, [
+                  _c(
+                    "a",
+                    {
+                      staticClass: "page-link text-dark",
+                      attrs: { href: "#" }
+                    },
+                    [
+                      _vm._v(
+                        "Page " +
+                          _vm._s(_vm.pagination.current_page) +
+                          " of " +
+                          _vm._s(_vm.pagination.last_page)
+                      )
+                    ]
+                  )
+                ]),
+                _vm._v(" "),
+                _c("li", { staticClass: "page-item" }, [
+                  _c(
+                    "a",
+                    {
+                      staticClass: "page-link",
+                      attrs: { href: "#" },
+                      on: {
+                        click: function($event) {
+                          _vm.fetchData(_vm.pagination.next_page)
+                        }
+                      }
+                    },
+                    [_vm._v(">")]
+                  )
+                ]),
+                _vm._v(" "),
+                _c("li", { staticClass: "page-item" }, [
+                  _c(
+                    "a",
+                    {
+                      staticClass: "page-link",
+                      attrs: { href: "#" },
+                      on: {
+                        click: function($event) {
+                          _vm.fetchAll()
+                        }
+                      }
+                    },
+                    [_vm._v(" View all ")]
+                  )
+                ])
+              ])
+            : _c("ul", { staticClass: "pagination" }, [
+                _c("li", { staticClass: "page-item" }, [
+                  _c(
+                    "a",
+                    {
+                      staticClass: "page-link",
+                      attrs: { href: "#" },
+                      on: {
+                        click: function($event) {
+                          _vm.fetchData(1)
+                        }
+                      }
+                    },
+                    [_vm._v(" Back to Top 100 ")]
+                  )
+                ])
+              ])
+        ]
+      )
     ]
   )
 }
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("thead", { staticClass: "thead-light" }, [
-      _c("tr", [
-        _c("th", { attrs: { scope: "col" } }, [_vm._v(" Name ")]),
-        _vm._v(" "),
-        _c("th", { attrs: { scope: "col" } }, [_vm._v(" Symbol ")])
-      ])
-    ])
-  }
-]
+var staticRenderFns = []
 render._withStripped = true
 module.exports = { render: render, staticRenderFns: staticRenderFns }
 if (false) {
@@ -52816,32 +53228,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
@@ -52856,7 +53242,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
   created: function created() {
     this.fetchCryptoNames();
   },
-
 
   methods: {
     fetchCryptoNames: function fetchCryptoNames() {
@@ -52874,93 +53259,36 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       if (!isNaN(this.transaction.quantity) || this.transaction.selectedCrypto == null) {
         this.transaction.selectedCrypto[1] = this.round(this.transaction.selectedCrypto[1]);
 
-        this.$http.post("buy/pay", this.transaction).then(function (data) {
-          if (isNaN(data.body)) {
-            // console.log(data.body);
-            window.location.href = data.body;
-          } else {
-            if (confirm("The prices just changed. New Price: " + this.round(data.body) + "| New Amout: " + this.round(data.body * this.transaction.quantity) + "| Do you accept the transaction? ")) {
-              this.transaction.selectedCrypto[1] = this.round(data.body);
-              console.log(this.transaction.selectedCrypto[1]);
-              this.pay();
+        if (typeof this.transaction.selectedCrypto[0] !== "undefined" && this.transaction.quantity !== null && this.transaction.quantity > 0) {
+          this.$http.post("buy/pay", this.transaction).then(function (data) {
+            if (isNaN(data.body)) {
+              // console.log(data.body);
+              window.location.href = data.body;
+            } else {
+              if (confirm("The prices just changed. New Price: " + this.round(data.body) + "| New Amout: " + this.round(data.body * this.transaction.quantity) + "| Do you accept the transaction? ")) {
+                this.transaction.selectedCrypto[1] = this.round(data.body);
+                console.log(this.transaction.selectedCrypto[1]);
+                this.pay();
+              }
             }
-          }
-        });
+          });
+        }
       }
     },
     round: function round(amount) {
       return Math.round(amount * 100) / 100;
     }
   },
-
   computed: {
     newAmount: function newAmount() {
       if (isNaN(this.transaction.quantity) || typeof this.transaction.selectedCrypto[0] !== "string") {
         return "";
       } else {
-        return this.round(this.transaction.quantity * this.transaction.selectedCrypto[1]);
+        if (this.transaction.quantity > 0) {
+          return this.round(this.transaction.quantity * this.transaction.selectedCrypto[1]);
+        }
       }
     }
-  },
-
-  mounted: function mounted() {
-    // Create a Stripe client.
-    var stripe = Stripe("pk_test_8iH5Z251WD08KHDJuvtwe7FZ");
-
-    // Create an instance of Elements.
-    var elements = stripe.elements();
-
-    // Custom styling can be passed to options when creating an Element.
-    // (Note that this demo uses a wider set of styles than the guide below.)
-    var style = {
-      base: {
-        color: "#32325d",
-        lineHeight: "18px",
-        fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
-        fontSmoothing: "antialiased",
-        fontSize: "16px",
-        "::placeholder": {
-          color: "#aab7c4"
-        }
-      },
-      invalid: {
-        color: "#fa755a",
-        iconColor: "#fa755a"
-      }
-    };
-
-    // Create an instance of the card Element.
-    var card = elements.create("card", { style: style });
-
-    // Add an instance of the card Element into the `card-element` <div>.
-    card.mount("#card-element");
-
-    // Handle real-time validation errors from the card Element.
-    card.addEventListener("change", function (event) {
-      var displayError = document.getElementById("card-errors");
-      if (event.error) {
-        displayError.textContent = event.error.message;
-      } else {
-        displayError.textContent = "";
-      }
-    });
-
-    // Handle form submission.
-    var form = document.getElementById("payment-form");
-    form.addEventListener("submit", function (event) {
-      event.preventDefault();
-
-      stripe.createToken(card).then(function (result) {
-        if (result.error) {
-          // Inform the user if there was an error.
-          var errorElement = document.getElementById("card-errors");
-          errorElement.textContent = result.error.message;
-        } else {
-          // Send the token to your server.
-          stripeTokenHandler(result.token);
-        }
-      });
-    });
   }
 });
 
@@ -52989,7 +53317,7 @@ var render = function() {
               }
             ],
             staticClass: "custom-select",
-            attrs: { id: "inputGroupSelect01", placholder: "cryptocurrency" },
+            attrs: { id: "inputGroupSelect01", placeholder: "cryptocurrency" },
             on: {
               change: function($event) {
                 var $$selectedVal = Array.prototype.filter
@@ -53047,27 +53375,9 @@ var render = function() {
       _c("div", { staticClass: "input-group mb-2" }, [
         _vm._m(1),
         _vm._v(" "),
-        _c("input", {
-          directives: [
-            {
-              name: "model",
-              rawName: "v-model",
-              value: _vm.newAmount,
-              expression: "newAmount"
-            }
-          ],
-          staticClass: "form-control",
-          attrs: { type: "text", placeholder: "amount" },
-          domProps: { value: _vm.newAmount },
-          on: {
-            input: function($event) {
-              if ($event.target.composing) {
-                return
-              }
-              _vm.newAmount = $event.target.value
-            }
-          }
-        })
+        _c("div", { staticClass: "d-inline-flex p-2 bd-highlight" }, [
+          _vm._v(" " + _vm._s(_vm.newAmount) + " ")
+        ])
       ]),
       _vm._v(" "),
       _c(
@@ -53080,30 +53390,7 @@ var render = function() {
             }
           }
         },
-        [_vm._v(" Pay with PayPal ")]
-      )
-    ]),
-    _vm._v(" "),
-    _c("div", { staticClass: "container" }, [
-      _c(
-        "form",
-        { attrs: { action: "/charge", method: "post", id: "payment-form" } },
-        [
-          _vm._m(2),
-          _vm._v(" "),
-          _c(
-            "a",
-            {
-              staticClass: "btn btn-danger",
-              on: {
-                click: function($event) {
-                  _vm.pay()
-                }
-              }
-            },
-            [_vm._v(" Pay with Card ")]
-          )
-        ]
+        [_vm._v(" Pay with PayPal or Card")]
       )
     ])
   ])
@@ -53123,20 +53410,6 @@ var staticRenderFns = [
     var _c = _vm._self._c || _h
     return _c("div", { staticClass: "input-group-prepend" }, [
       _c("span", { staticClass: "input-group-text" }, [_vm._v("Amount in EUR")])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "form-row mb-2" }, [
-      _c("label", { attrs: { for: "card-element" } }, [
-        _vm._v("\r\n      Credit or debit card\r\n    ")
-      ]),
-      _vm._v(" "),
-      _c("div", { staticClass: "form-control", attrs: { id: "card-element" } }),
-      _vm._v(" "),
-      _c("div", { attrs: { id: "card-errors", role: "alert" } })
     ])
   }
 ]
@@ -53285,19 +53558,21 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       });
     },
     sell: function sell() {
-      this.$http.post("sell", this.transaction).then(function (data) {
-        console.log(data.body);
-        if (isNaN(data.body)) {
-          window.location.href = data.body;
-        } else if (data.body == 0) {
-          window.alert("Not enough cryptocurrency in your wallet.");
-        } else {
-          if (confirm("The prices just changed. New Price: " + this.round(data.body) + "| New Amout: " + this.round(data.body * this.transaction.quantity) + "| Do you accept the transaction? ")) {
-            this.transaction.selectedCrypto[1] = this.round(data.body);
-            this.sell();
+      if (typeof this.transaction.selectedCrypto[0] !== "undefined" && this.transaction.quantity !== null && this.transaction.quantity > 0) {
+        this.$http.post("sell", this.transaction).then(function (data) {
+          console.log(data.body);
+          if (isNaN(data.body)) {
+            window.location.href = data.body;
+          } else if (data.body == 0) {
+            window.alert("Not enough cryptocurrency in your wallet.");
+          } else {
+            if (confirm("The prices just changed. New Price: " + this.round(data.body) + "| New Amout: " + this.round(data.body * this.transaction.quantity) + "| Do you accept the transaction? ")) {
+              this.transaction.selectedCrypto[1] = this.round(data.body);
+              this.sell();
+            }
           }
-        }
-      });
+        });
+      }
     },
     round: function round(amount) {
       return Math.round(amount * 100) / 100;
@@ -53309,7 +53584,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       if (isNaN(this.transaction.quantity) || typeof this.transaction.selectedCrypto[0] !== "string") {
         return "";
       } else {
-        return this.round(this.transaction.quantity * this.transaction.selectedCrypto[1]);
+        if (this.transaction.quantity > 0) {
+          return this.round(this.transaction.quantity * this.transaction.selectedCrypto[1]);
+        }
       }
     }
   }
@@ -53398,27 +53675,9 @@ var render = function() {
       _c("div", { staticClass: "input-group mb-2" }, [
         _vm._m(1),
         _vm._v(" "),
-        _c("input", {
-          directives: [
-            {
-              name: "model",
-              rawName: "v-model",
-              value: _vm.newAmount,
-              expression: "newAmount"
-            }
-          ],
-          staticClass: "form-control",
-          attrs: { type: "text", placeholder: "amount" },
-          domProps: { value: _vm.newAmount },
-          on: {
-            input: function($event) {
-              if ($event.target.composing) {
-                return
-              }
-              _vm.newAmount = $event.target.value
-            }
-          }
-        })
+        _c("div", { staticClass: "d-inline-flex p-2 bd-highlight" }, [
+          _vm._v(" " + _vm._s(_vm.newAmount) + " ")
+        ])
       ]),
       _vm._v(" "),
       _c(
