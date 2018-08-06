@@ -4,7 +4,9 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddUserIdToBalances extends Migration
+use App\Classes\getPrices;
+
+class CreateCoinPricesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +15,14 @@ class AddUserIdToBalances extends Migration
      */
     public function up()
     {
-        Schema::table('balances', function($table)
-        {
-        $table->integer('user_id');
-        $table->primary('user_id');
+        Schema::create('coin_prices', function (Blueprint $table) {
+            $table->integer('id');
+            $table->string('symbol');
+            $table->double('priceEUR');
+            
+            $table->primary('id');
         });
     }
-
     /**
      * Reverse the migrations.
      *
@@ -27,9 +30,6 @@ class AddUserIdToBalances extends Migration
      */
     public function down()
     {
-        Schema::table('balances', function($table)
-        {
-        $table->dropColumn('id');
-        });
+        Schema::dropIfExists('coin_prices');
     }
 }

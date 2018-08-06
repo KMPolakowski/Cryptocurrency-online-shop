@@ -16,6 +16,7 @@ import VueResource from 'vue-resource'
 import VModal from 'vue-js-modal'
 
 
+
 Vue.use(VModal, {
     dynamic: true,
     injectModalsContainer: true
@@ -81,4 +82,5 @@ const app = new Vue({
 
 const app2 = new Vue({
     el: '#app2'
+
 });

@@ -18,6 +18,11 @@ use GuzzleHttp\Client;
 class ApiController extends Controller
 {
  
+    public function __construct()
+    {
+        $this->middleware('throttle:60,1', ['except' => ['getCryptoNames']]);
+    }
+
     public function getCryptoNames()
     {
         $cryptonames = DB::getSchemaBuilder()->getColumnListing('cryptos');
@@ -33,7 +38,7 @@ class ApiController extends Controller
         
         $pageIndex = 1;
         
-
+        
         if($page != 1)
         {
             $pageIndex = ($page-1) * 100 +1;
@@ -43,6 +48,25 @@ class ApiController extends Controller
 
 
         return $coins;
+    }
+
+    public function getListings()
+    {
+        $client = new Client(); //GuzzleHttp\Client
+
+        $listings = ($client->get('https://api.coinmarketcap.com/v2/listings/'))->getBody();
+
+        return $listings;
+    }
+
+    public function getCoin($id)
+    {
+
+        $client = new Client(); //GuzzleHttp\Client
+
+        $coin = ($client->get('https://api.coinmarketcap.com/v2/ticker/'.$id.'/?convert=EUR'))->getBody();
+
+        return $coin;
     }
 
 

@@ -12,8 +12,8 @@ use DB;
 use App\Classes\getPrices;
 
 use App\User;
-use App\Crypto;
-use App\Crypto_prices;
+use App\Coin_balance;
+use App\Coin_price;
 use App\Balance;
 
 
@@ -21,39 +21,13 @@ class PaymentController extends Controller
 {
     public function __construct()
     {
-       $this->middleware('auth', ['except' => ['getCryptoNames']]);
+       $this->middleware('auth');
     } 
     
-
-    public function getCryptoNames()
-    {
-
-        $getPrices = new getPrices(); 
-
-        
-        $getPrices->fetchPrices();
-
-
-        $response = array();
-
-        $crypto_prices = Crypto_prices::all();
-
-        foreach($crypto_prices as $item)
-        {
-            array_push($response, array($item->name, $item->priceEUR));
-        }
-        // removes  last value (user_id)
-
-        return json_encode($response);
-        
-    }
-
 
     public function pay(Request $request)
     { 
             $paypal = new PayPal();
-
-            $formPrice = $request->selectedCrypto[1];
 
             return $paypal->pay($request->selectedCrypto, $request->quantity);
     }
@@ -68,62 +42,83 @@ class PaymentController extends Controller
 
         $result = $paypal->execute($paymentId, $bearer, $payerId);
         $resultDecoded = json_decode($result, true);
-        $addQuantity = $resultDecoded["transactions"][0]["description"];
-        $cryptoId = $resultDecoded["transactions"][0]["item_list"]["items"][0]["sku"];
+        $buyingQuantity = $resultDecoded["transactions"][0]["description"];
+        $coinId = $resultDecoded["transactions"][0]["item_list"]["items"][0]["sku"];
 
-        // $user = User::find(auth()->user()->id);
-        // $user->cryptos->bitcoin = 2.5;
-        // $user->save();
-
-        $crypto = Crypto::find(auth()->user()->id);
         
-        $quantity = $crypto->$cryptoId + $addQuantity;
-        $crypto->$cryptoId = $quantity;
-        $crypto->save();
+
+        $coin_balance = Coin_balance::where('user_id', '=', auth()->user()->id)->where('coin_id', $coinId)->first();
+
+        if($coin_balance == null)
+        {
+            $coin_balance = new Coin_balance();
+            $coin_balance->coin_id = $coinId;
+            $coin_balance->quantity = $buyingQuantity;
+            $coin_balance->user_id = auth()->user()->id;
+            $coin_balance->save();
+
+            return redirect('wallet');
+        }
+
+        else
+        {
+        $newQuantity = $coin_balance->quantity + $buyingQuantity;
+
+        $coin_balance->quantity = $newQuantity;
+        $coin_balance->save();
 
         return redirect('wallet');
+
+        }
+
     }
 
     public function sell(Request $request)
     {
-        $crypto = Crypto::find(auth()->user()->id);
-
-        $selectedCrypto = $request->selectedCrypto[0];
-        $selectedCryptoPrice = $request->selectedCrypto[1];
-
+        $user = User::find(auth()->user()->id);
+        $coinId = $request->selectedCrypto["id"];
+        $selectedCrypto = $request->selectedCrypto;
 
         $sellQuantity = $request->quantity;
 
+        
+
         if($sellQuantity > 0)
         {
-
-        $cryptoOwned = $crypto->$selectedCrypto;
-
-
-        if($crypto->$selectedCrypto >= $sellQuantity)
-        {
-            $cryptoOwned = $crypto->$selectedCrypto;
-
-            $crypto->$selectedCrypto = round($cryptoOwned - $sellQuantity, 8);
-            $crypto->save();
-
-
-            $getPrices = new getPrices(); 
-            $getPrices->fetchPrices();
-            $price = Crypto_prices::where('name', $selectedCrypto)->first()->priceEUR;
-    
             
-            if(round($price, 2) !== round($selectedCryptoPrice, 2))
+        $coin_balance = Coin_balance::where('user_id', '=', auth()->user()->id)->where('coin_id', $coinId)->first();
+
+        if($coin_balance == null)
+        {
+            return 0;
+        }
+        $coinsOwned = $coin_balance->quantity;
+
+
+        if($coinsOwned >= $sellQuantity)
+        {
+            $getPrices = new getPrices(); 
+
+            $actualPrice = $getPrices->fetchPrices($coinId);
+            $sellQuantity = round($sellQuantity, 8);
+    
+            $price = $selectedCrypto["quotes"]["EUR"]["price"];
+    
+            if(round($actualPrice, 2) !== round($price, 2))
             {
-                return $price;
+                    return $actualPrice;
             }
 
+
+
+            $coin_balance->quantity = round($coinsOwned - $sellQuantity, 8);
+            $coin_balance->save();
+
             $balance = Balance::find(auth()->user()->id);
-
-            $balanceOnwed = $balance->eur;
-
-            $balance->eur = $balanceOnwed + round(($price * $sellQuantity), 2);
+            $balanceOwned = $balance->eur;
+            $balance->eur = $balanceOwned + round(($actualPrice * $sellQuantity), 2);
             $balance->save();
+            
 
             return "/wallet";
         }
@@ -140,7 +135,8 @@ class PaymentController extends Controller
         return 0;
     }
 
-        
+     
+    
     }
 
 

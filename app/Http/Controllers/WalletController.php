@@ -6,8 +6,8 @@ use Illuminate\Http\Request;
 use App\User;
 use DB;
 
-use App\Crypto_prices;
-use App\Balance;
+use App\Coin_price;
+use App\Coin_balance;
 
 class WalletController extends Controller
 {
@@ -31,18 +31,10 @@ class WalletController extends Controller
         $user_id = auth()->user()->id;
         $user = User::find($user_id);
         
-        $crypto_p = new Crypto_prices;
+        $coin_balances = $user->coin_balances;
 
-        $prices = $crypto_p->pluck('priceEUR', 'name');
-        
+        return $coin_balances;
 
-        foreach($prices as $key => $val)
-        {
-         $prices[$key] = [$val, $user->cryptos->$key];
-        }
-
- 
-        return $prices;
     }
 
 

@@ -1,4 +1,5 @@
 <template>
+
 <div class="container" align="center">
   <div class="buy-input">
   
@@ -6,19 +7,20 @@
     <h2>Sell Cryptocurrencies</h2>
 
     <div class="input-group mb-2">
-
-  <select class="custom-select" id="inputGroupSelect01" v-model="transaction.selectedCrypto" placholder="cryptocurrency">
-    <!-- <option selected>Choose...</option> -->
-    <option v-for="cryptoName in cryptoNames" v-bind:key="cryptoName" :value="cryptoName"> {{ cryptoName[0] }} </option>
-
-  </select>
-
-
-
-
   
-    </div>
-  
+
+  <div class="input-group-prepend">
+  </div>
+        <input type="text" class="form-control"  v-model="searchInput" placeholder="Search for coins">
+
+        
+</div>
+
+<ul class="list-group mb-2 searchResult">
+
+  <li class="list-group-item" @click="getCoin(result)" :class="{active: result.id == selectedCoinId}" v-for="result in searchResults" v-bind:key="result" v-if="typeof result !== 'undefined'"> {{result.name}}</li>
+
+</ul>
 
     <div class="input-group mb-2">
   
@@ -49,6 +51,7 @@
   
 
   </div>
+
 </div>
 </template>
 
@@ -60,33 +63,44 @@ export default {
       transaction: {
         selectedCrypto: {},
         quantity: null
-      }
+      },
+      listings: {},
+      searchInput: null,
+      searchResults: [],
+      selectedCoinId: null
     };
   },
-
   created() {
-    this.fetchCryptoNames();
+    this.getListings();
+  },
+
+  mounted() {
+    $("#background").height(0);
+
+    let scrollHeight = Math.max(
+      document.body.scrollHeight,
+      document.documentElement.scrollHeight,
+      document.body.offsetHeight,
+      document.documentElement.offsetHeight,
+      document.body.clientHeight,
+      document.documentElement.clientHeight
+    );
+
+    $("#background").height(scrollHeight);
+    window.dispatchEvent(new Event("resize"));
   },
 
   methods: {
-    fetchCryptoNames() {
-      fetch("buy/crypto_names")
-        .then(res => res.json())
-        .then(res => {
-          this.cryptoNames = res;
-        })
-        .catch(err => console.log(err));
-    },
     sell() {
       if (
-        typeof this.transaction.selectedCrypto[0] !== "undefined" &&
+        typeof this.transaction.selectedCrypto !== "undefined" &&
         this.transaction.quantity !== null &&
         this.transaction.quantity > 0
       ) {
         this.$http.post("sell", this.transaction).then(function(data) {
           console.log(data.body);
           if (isNaN(data.body)) {
-            window.location.href = data.body;
+            // window.location.href = data.body;
           } else if (data.body == 0) {
             window.alert("Not enough cryptocurrency in your wallet.");
           } else {
@@ -99,32 +113,72 @@ export default {
                   "| Do you accept the transaction? "
               )
             ) {
-              this.transaction.selectedCrypto[1] = this.round(data.body);
+              this.transaction.selectedCrypto.quotes.EUR.price = this.round(
+                data.body
+              );
               this.sell();
             }
           }
         });
       }
     },
+
+    getCoin(coin) {
+      window.console.log(coin.name);
+      this.selectedCoinId = coin.id;
+
+      this.$http.get("api/coin/" + coin.id).then(function(data) {
+        this.transaction.selectedCrypto = data.body.data;
+
+        window.console.log(this.transaction.selectedCrypto);
+      });
+    },
+
+    getListings() {
+      this.$http.get("api/listings").then(function(data) {
+        this.listings = data.body.data;
+        window.console.log(this.listings);
+      });
+    },
+
+    onSearchInput() {
+      window.console.log();
+    },
+
     round(amount) {
       return Math.round(amount * 100) / 100;
     }
   },
-
   computed: {
     newAmount: function() {
       if (
         isNaN(this.transaction.quantity) ||
-        typeof this.transaction.selectedCrypto[0] !== "string"
+        typeof this.transaction.selectedCrypto == "null"
       ) {
         return "";
       } else {
         if (this.transaction.quantity > 0) {
           return this.round(
-            this.transaction.quantity * this.transaction.selectedCrypto[1]
+            this.transaction.quantity *
+              this.transaction.selectedCrypto.quotes.EUR.price
           );
         }
       }
+    }
+  },
+
+  watch: {
+    searchInput: function(val) {
+      let result = [];
+      let i = 0;
+      this.listings.forEach(function(listing) {
+        if (listing.name.toUpperCase().includes(val.toUpperCase()) && i < 10) {
+          result[i] = listing;
+          i++;
+        }
+      });
+      window.console.log(result);
+      this.searchResults = result;
     }
   }
 };

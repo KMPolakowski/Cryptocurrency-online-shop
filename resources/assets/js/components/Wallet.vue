@@ -18,10 +18,10 @@
                 <tbody>
 
 
-                    <tr v-for="(item, key) in walletData" v-bind:key="key">
-                        <th scope="row"> {{ key }} </th>
-                        <td> {{ item[1] }} </td>
-                        <td>{{ round(item[1] * item[0]) }} </td>
+                    <tr v-for="coin in walletData" v-bind:key="coin">
+                        <th scope="row"> {{ coin[0] }} </th>
+                        <td> {{ coin[1] }} </td>
+                        <td>{{ round(coin[1] * coin[2]) }} </td>
                     </tr>
 
                 </tbody>
@@ -42,25 +42,44 @@
 export default {
   data() {
     return {
-      walletData: {}
+      walletData: []
     };
   },
   created() {
     this.fetchData();
   },
 
+  mounted() {
+    $("#background").height(0);
+
+    let scrollHeight = Math.max(
+      document.body.scrollHeight,
+      document.documentElement.scrollHeight,
+      document.body.offsetHeight,
+      document.documentElement.offsetHeight,
+      document.body.clientHeight,
+      document.documentElement.clientHeight
+    );
+
+    $("#background").height(scrollHeight);
+    window.dispatchEvent(new Event("resize"));
+  },
+
   methods: {
     fetchData() {
-      this.$http.get("data/wallet").then(function(data) {
-        // for (let i = 1; i < 101; i++) {
-        //   console.log(data.body.data[i]);
-        // }
+      var a = this;
 
-        this.walletData = data.body;
-        console.log(this.walletData);
-        // Object.keys(data.body.data).forEach(function(key, index) {
-        //   console.log(this[key].rank);
-        // }, data.body.data);
+      this.$http.get("data/wallet").then(function(data) {
+        data.body.forEach(function(coin, index) {
+          window.console.log(coin);
+          a.$http.get("api/coin/" + coin.coin_id).then(function(data) {
+            a.walletData.push([
+              data.body.data.name,
+              coin.quantity,
+              data.body.data.quotes.EUR.price
+            ]);
+          });
+        });
       });
     },
     round(amount) {

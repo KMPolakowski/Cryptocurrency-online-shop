@@ -4,8 +4,8 @@
 
       
 
-<h3> Please don't overuse View all (or just do it slowly), because CoinMarketCap will ban my server (workaround underway) </h3>
-<nav aria-label="Page navigation example" class="ml-auto mt-5 CoinPagination">
+<!-- <h3> Requesting each 100 coins limited to 60 times per minute, due to CoinMarketCap API restrictions. </h3> -->
+<nav aria-label="Page navigation example" class="ml-auto mt-1 CoinPagination">
 
   <select class="custom-select" id="currencySwitcher" v-model="selectedCurrency" @change="updateCoins()" placeholder="cryptocurrency">
     <option v-for="currency in currencies" v-bind:key="currency" :value="currency"> {{ currency }} </option>
@@ -39,8 +39,8 @@
 
     
 
-    <table class="table-striped w-100 p-3" >
-                <thead class="thead-light">
+    <table class="table-dark w-100 p-3" >
+                <thead class="thead">
                     <tr>
                         <th scope="col"> {{this.text.Name[selectedLang[1]]}} </th>
 
@@ -111,7 +111,7 @@ export default {
       languages: [["English", 0], ["Deutsch", 1], ["Polski", 2]],
       text: {
         Name: ["Name", "Name", "Nazwa"],
-        Symbol: ["Symbol", "Symbol", "Skrót"],
+        Symbol: ["Symbol", "Abkürzung", "Skrót"],
         MarketCap: ["Market Cap", "Marktkap.", "Kap. rynku"],
         Price: ["Price", "Preis", "Cena"],
         "Volume(24h)": ["Volume(24h)", "Volumen(24h)", "Objętość (24godz.)"],
@@ -166,6 +166,22 @@ export default {
     this.fetchData(this.pagination.current_page);
     // window.console.log(this.pagination.current_page);
   },
+  // updated: function() {
+  //   this.$nextTick(function() {
+  //     let scrollHeight = Math.max(
+  //       document.body.scrollHeight,
+  //       document.documentElement.scrollHeight,
+  //       document.body.offsetHeight,
+  //       document.documentElement.offsetHeight,
+  //       document.body.clientHeight,
+  //       document.documentElement.clientHeight
+  //     );
+
+  //     $("#background").height(scrollHeight);
+
+  //     window.dispatchEvent(new Event("resize"));
+  //   });
+  // },
 
   methods: {
     fetchAll() {
@@ -184,6 +200,9 @@ export default {
           });
       }
       this.dataHasLoaded = true;
+      // $("#background").height(document.body.scrollHeight);
+      window.console.log(document.body.scrollHeight);
+      // window.dispatchEvent(new Event("resize"));
 
       // window.console.log(newCryptoData);
       this.showMenu = false;
@@ -208,6 +227,20 @@ export default {
         .then(function(data) {
           this.cryptoData = data.body.data;
           this.dataHasLoaded = true;
+        })
+        .then(function() {
+          let scrollHeight = Math.max(
+            document.body.scrollHeight,
+            document.documentElement.scrollHeight,
+            document.body.offsetHeight,
+            document.documentElement.offsetHeight,
+            document.body.clientHeight,
+            document.documentElement.clientHeight
+          );
+
+          $("#background").height(scrollHeight);
+
+          window.dispatchEvent(new Event("resize"));
         });
 
       // make Pagination
@@ -233,7 +266,7 @@ export default {
         this.$modal.show(
           {
             template: `
-    <table class="table-striped w-100 p-3">
+    <table class="table-light w-100 p-3 coinInfo">
                
                 <tbody  v-for="item in coins" v-if="item.rank == index" v-bind:key="item.rank">
                   
@@ -268,7 +301,7 @@ export default {
 
                         <tr>
                         <td scope="row"> {{text.CirculatingSupply[selectedLang[1]]}} </td>  
-                        <td>{{item.circulating_supply}} </td>
+                        <td v-if="item.circulating_supply !== null">{{item.circulating_supply.toLocaleString()}} </td>
                         </tr>
 
                         <tr>

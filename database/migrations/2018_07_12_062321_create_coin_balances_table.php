@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddUserIdToCryptos extends Migration
+class CreateCoinBalancesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,11 @@ class AddUserIdToCryptos extends Migration
      */
     public function up()
     {
-        Schema::table('cryptos', function($table)
-        {
-        $table->integer('user_id');
-        $table->primary('user_id');
+        Schema::create('coin_balances', function (Blueprint $table) {
+            $table->increments('id');
+            $table->integer('coin_id');
+            $table->double('quantity');
+
         });
     }
 
@@ -27,9 +28,6 @@ class AddUserIdToCryptos extends Migration
      */
     public function down()
     {
-        Schema::table('cryptos', function($table)
-        {
-        $table->dropColumn('user_id');
-        });
+        Schema::dropIfExists('coin_balances');
     }
 }

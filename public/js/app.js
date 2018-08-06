@@ -14107,6 +14107,7 @@ var app = new Vue({
 
 var app2 = new Vue({
     el: '#app2'
+
 });
 
 /***/ }),
@@ -52681,7 +52682,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       languages: [["English", 0], ["Deutsch", 1], ["Polski", 2]],
       text: {
         Name: ["Name", "Name", "Nazwa"],
-        Symbol: ["Symbol", "Symbol", "Skrót"],
+        Symbol: ["Symbol", "Abkürzung", "Skrót"],
         MarketCap: ["Market Cap", "Marktkap.", "Kap. rynku"],
         Price: ["Price", "Preis", "Cena"],
         "Volume(24h)": ["Volume(24h)", "Volumen(24h)", "Objętość (24godz.)"],
@@ -52700,6 +52701,22 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     // window.console.log(this.pagination.current_page);
   },
 
+  // updated: function() {
+  //   this.$nextTick(function() {
+  //     let scrollHeight = Math.max(
+  //       document.body.scrollHeight,
+  //       document.documentElement.scrollHeight,
+  //       document.body.offsetHeight,
+  //       document.documentElement.offsetHeight,
+  //       document.body.clientHeight,
+  //       document.documentElement.clientHeight
+  //     );
+
+  //     $("#background").height(scrollHeight);
+
+  //     window.dispatchEvent(new Event("resize"));
+  //   });
+  // },
 
   methods: {
     fetchAll: function fetchAll() {
@@ -52716,6 +52733,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         });
       }
       this.dataHasLoaded = true;
+      // $("#background").height(document.body.scrollHeight);
+      window.console.log(document.body.scrollHeight);
+      // window.dispatchEvent(new Event("resize"));
 
       // window.console.log(newCryptoData);
       this.showMenu = false;
@@ -52736,6 +52756,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       this.$http.get("api/dashboard/" + page + "/" + this.selectedCurrency).then(function (data) {
         this.cryptoData = data.body.data;
         this.dataHasLoaded = true;
+      }).then(function () {
+        var scrollHeight = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight, document.body.offsetHeight, document.documentElement.offsetHeight, document.body.clientHeight, document.documentElement.clientHeight);
+
+        $("#background").height(scrollHeight);
+
+        window.dispatchEvent(new Event("resize"));
       });
 
       // make Pagination
@@ -52759,7 +52785,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         this.selectedCoin = index;
 
         this.$modal.show({
-          template: "\n    <table class=\"table-striped w-100 p-3\">\n               \n                <tbody  v-for=\"item in coins\" v-if=\"item.rank == index\" v-bind:key=\"item.rank\">\n                  \n                        <tr>\n                        <td> # </td>   \n                        <td> {{ item.rank }} </td>               \n                        </tr>\n\n                        <tr>\n                        <td scope=\"row\"> {{text.Name[selectedLang[1]]}} </td>  \n                        <td> <img v-bind:src = \"'https://s2.coinmarketcap.com/static/img/coins/16x16/' + item.id + '.png'\"> {{item.name}} </td>\n                        </tr>\n\n                        <tr>\n                        <td scope=\"row\"> {{text.MarketCap[selectedLang[1]]}} </td>  \n\n                        <td v-if=\"item.quotes[selectedCurrency].market_cap != null\">{{item.quotes[selectedCurrency].market_cap.toLocaleString('de-DE', { style: 'currency', currency: selectedCurrency })}} </td>\n                        <td v-else> ? </td>\n                        </tr>\n\n                        <tr>\n                        <td scope=\"row\"> {{text.Price[selectedLang[1]]}}  </td>  \n                        <td v-if=\"item.quotes[selectedCurrency].price != null\">{{item.quotes[selectedCurrency].price.toLocaleString('de-DE', { style: 'currency', currency: selectedCurrency })}} </td>\n                        <td v-else> ? </td>\n                        </tr>\n\n                        <tr>\n                        <td scope=\"row\"> {{text['Volume(24h)'][selectedLang[1]]}} </td>  \n                        <td v-if=\"item.quotes[selectedCurrency].volume_24h != null\">{{item.quotes[selectedCurrency].volume_24h.toLocaleString('de-DE', { style: 'currency', currency: selectedCurrency })}} </td>\n                        <td v-else> ? </td>\n                        </tr>\n\n                        <tr>\n                        <td scope=\"row\"> {{text.CirculatingSupply[selectedLang[1]]}} </td>  \n                        <td>{{item.circulating_supply}} </td>\n                        </tr>\n\n                        <tr>\n                        <td scope=\"row\"> {{text['Change(24h)'][selectedLang[1]]}} </td>  \n                        <td v-if=\"item.quotes[selectedCurrency].percent_change_24h >= 0\" style=\"color: green\">{{item.quotes[selectedCurrency].percent_change_24h}} % </td>\n                        <td v-else style =\"color: red\">{{item.quotes[selectedCurrency].percent_change_24h}} % </td>\n                        </tr>\n\n                        <tr>\n                        <td scope=\"row\"> {{text['7dgraph'][selectedLang[1]]}} </td>  \n                        <td> <img v-bind:src= \"'https://s2.coinmarketcap.com/generated/sparklines/web/7d/usd/' + item.id +'.png'\"> </td>\n                        </tr>\n\n                </tbody>\n\n    </table>\n  ",
+          template: "\n    <table class=\"table-light w-100 p-3 coinInfo\">\n               \n                <tbody  v-for=\"item in coins\" v-if=\"item.rank == index\" v-bind:key=\"item.rank\">\n                  \n                        <tr>\n                        <td> # </td>   \n                        <td> {{ item.rank }} </td>               \n                        </tr>\n\n                        <tr>\n                        <td scope=\"row\"> {{text.Name[selectedLang[1]]}} </td>  \n                        <td> <img v-bind:src = \"'https://s2.coinmarketcap.com/static/img/coins/16x16/' + item.id + '.png'\"> {{item.name}} </td>\n                        </tr>\n\n                        <tr>\n                        <td scope=\"row\"> {{text.MarketCap[selectedLang[1]]}} </td>  \n\n                        <td v-if=\"item.quotes[selectedCurrency].market_cap != null\">{{item.quotes[selectedCurrency].market_cap.toLocaleString('de-DE', { style: 'currency', currency: selectedCurrency })}} </td>\n                        <td v-else> ? </td>\n                        </tr>\n\n                        <tr>\n                        <td scope=\"row\"> {{text.Price[selectedLang[1]]}}  </td>  \n                        <td v-if=\"item.quotes[selectedCurrency].price != null\">{{item.quotes[selectedCurrency].price.toLocaleString('de-DE', { style: 'currency', currency: selectedCurrency })}} </td>\n                        <td v-else> ? </td>\n                        </tr>\n\n                        <tr>\n                        <td scope=\"row\"> {{text['Volume(24h)'][selectedLang[1]]}} </td>  \n                        <td v-if=\"item.quotes[selectedCurrency].volume_24h != null\">{{item.quotes[selectedCurrency].volume_24h.toLocaleString('de-DE', { style: 'currency', currency: selectedCurrency })}} </td>\n                        <td v-else> ? </td>\n                        </tr>\n\n                        <tr>\n                        <td scope=\"row\"> {{text.CirculatingSupply[selectedLang[1]]}} </td>  \n                        <td v-if=\"item.circulating_supply !== null\">{{item.circulating_supply.toLocaleString()}} </td>\n                        </tr>\n\n                        <tr>\n                        <td scope=\"row\"> {{text['Change(24h)'][selectedLang[1]]}} </td>  \n                        <td v-if=\"item.quotes[selectedCurrency].percent_change_24h >= 0\" style=\"color: green\">{{item.quotes[selectedCurrency].percent_change_24h}} % </td>\n                        <td v-else style =\"color: red\">{{item.quotes[selectedCurrency].percent_change_24h}} % </td>\n                        </tr>\n\n                        <tr>\n                        <td scope=\"row\"> {{text['7dgraph'][selectedLang[1]]}} </td>  \n                        <td> <img v-bind:src= \"'https://s2.coinmarketcap.com/generated/sparklines/web/7d/usd/' + item.id +'.png'\"> </td>\n                        </tr>\n\n                </tbody>\n\n    </table>\n  ",
           props: ["coins", "index", "selectedCurrency", "text", "selectedLang"]
         }, {
           coins: this.orderedCryptoData,
@@ -52796,16 +52822,10 @@ var render = function() {
     "div",
     { staticClass: "container", attrs: { id: "dashboard-wrapper" } },
     [
-      _c("h3", [
-        _vm._v(
-          " Please don't overuse View all (or just do it slowly), because CoinMarketCap will ban my server (workaround underway) "
-        )
-      ]),
-      _vm._v(" "),
       _c(
         "nav",
         {
-          staticClass: "ml-auto mt-5 CoinPagination",
+          staticClass: "ml-auto mt-1 CoinPagination",
           attrs: { "aria-label": "Page navigation example" }
         },
         [
@@ -52978,8 +52998,8 @@ var render = function() {
         ]
       ),
       _vm._v(" "),
-      _c("table", { staticClass: "table-striped w-100 p-3" }, [
-        _c("thead", { staticClass: "thead-light" }, [
+      _c("table", { staticClass: "table-dark w-100 p-3" }, [
+        _c("thead", { staticClass: "thead" }, [
           _c("tr", [
             _c("th", { attrs: { scope: "col" } }, [
               _vm._v(" " + _vm._s(this.text.Name[_vm.selectedLang[1]]) + " ")
@@ -53228,6 +53248,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
@@ -53236,58 +53260,90 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       transaction: {
         selectedCrypto: {},
         quantity: null
-      }
+      },
+      listings: {},
+      searchInput: null,
+      searchResults: [],
+      selectedCoinId: null
     };
   },
   created: function created() {
-    this.fetchCryptoNames();
+    this.getListings();
+  },
+  mounted: function mounted() {
+    $("#background").height(0);
+
+    var scrollHeight = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight, document.body.offsetHeight, document.documentElement.offsetHeight, document.body.clientHeight, document.documentElement.clientHeight);
+
+    $("#background").height(scrollHeight);
+    window.dispatchEvent(new Event("resize"));
   },
 
-  methods: {
-    fetchCryptoNames: function fetchCryptoNames() {
-      var _this = this;
 
-      fetch("buy/crypto_names").then(function (res) {
-        return res.json();
-      }).then(function (res) {
-        _this.cryptoNames = res;
-      }).catch(function (err) {
-        return console.log(err);
+  methods: {
+    pay: function pay() {
+      if (typeof this.transaction.selectedCrypto !== "undefined" && this.transaction.quantity !== null && this.transaction.quantity > 0) {
+        this.$http.post("buy/pay", this.transaction).then(function (data) {
+          if (isNaN(data.body)) {
+            window.location.href = data.body;
+          } else {
+            if (confirm("The prices just changed. New Price: " + this.round(data.body) + "| New Amout: " + this.round(data.body * this.transaction.quantity) + "| Do you accept the transaction? ")) {
+              this.transaction.selectedCrypto.quotes.EUR.price = this.round(data.body);
+              // console.log(this.transaction.selectedCrypto[1]);
+              this.pay();
+            }
+          }
+        });
+      }
+    },
+    getCoin: function getCoin(coin) {
+      window.console.log(coin.name);
+      this.selectedCoinId = coin.id;
+
+      this.$http.get("api/coin/" + coin.id).then(function (data) {
+        this.transaction.selectedCrypto = data.body.data;
+
+        window.console.log(this.transaction.selectedCrypto);
       });
     },
-    pay: function pay() {
-      if (!isNaN(this.transaction.quantity) || this.transaction.selectedCrypto == null) {
-        this.transaction.selectedCrypto[1] = this.round(this.transaction.selectedCrypto[1]);
-
-        if (typeof this.transaction.selectedCrypto[0] !== "undefined" && this.transaction.quantity !== null && this.transaction.quantity > 0) {
-          this.$http.post("buy/pay", this.transaction).then(function (data) {
-            if (isNaN(data.body)) {
-              // console.log(data.body);
-              window.location.href = data.body;
-            } else {
-              if (confirm("The prices just changed. New Price: " + this.round(data.body) + "| New Amout: " + this.round(data.body * this.transaction.quantity) + "| Do you accept the transaction? ")) {
-                this.transaction.selectedCrypto[1] = this.round(data.body);
-                console.log(this.transaction.selectedCrypto[1]);
-                this.pay();
-              }
-            }
-          });
-        }
-      }
+    getListings: function getListings() {
+      this.$http.get("api/listings").then(function (data) {
+        this.listings = data.body.data;
+        window.console.log(this.listings);
+      });
+    },
+    onSearchInput: function onSearchInput() {
+      window.console.log();
     },
     round: function round(amount) {
       return Math.round(amount * 100) / 100;
     }
   },
+
   computed: {
     newAmount: function newAmount() {
-      if (isNaN(this.transaction.quantity) || typeof this.transaction.selectedCrypto[0] !== "string") {
+      if (isNaN(this.transaction.quantity) || typeof this.transaction.selectedCrypto == "null") {
         return "";
       } else {
         if (this.transaction.quantity > 0) {
-          return this.round(this.transaction.quantity * this.transaction.selectedCrypto[1]);
+          return this.round(this.transaction.quantity * this.transaction.selectedCrypto.quotes.EUR.price);
         }
       }
+    }
+  },
+
+  watch: {
+    searchInput: function searchInput(val) {
+      var result = [];
+      var i = 0;
+      this.listings.forEach(function (listing) {
+        if (listing.name.toUpperCase().includes(val.toUpperCase()) && i < 10) {
+          result[i] = listing;
+          i++;
+        }
+      });
+      window.console.log(result);
+      this.searchResults = result;
     }
   }
 });
@@ -53305,46 +53361,53 @@ var render = function() {
       _c("h2", [_vm._v("Buy Cryptocurrencies")]),
       _vm._v(" "),
       _c("div", { staticClass: "input-group mb-2" }, [
-        _c(
-          "select",
-          {
-            directives: [
-              {
-                name: "model",
-                rawName: "v-model",
-                value: _vm.transaction.selectedCrypto,
-                expression: "transaction.selectedCrypto"
-              }
-            ],
-            staticClass: "custom-select",
-            attrs: { id: "inputGroupSelect01", placeholder: "cryptocurrency" },
-            on: {
-              change: function($event) {
-                var $$selectedVal = Array.prototype.filter
-                  .call($event.target.options, function(o) {
-                    return o.selected
-                  })
-                  .map(function(o) {
-                    var val = "_value" in o ? o._value : o.value
-                    return val
-                  })
-                _vm.$set(
-                  _vm.transaction,
-                  "selectedCrypto",
-                  $event.target.multiple ? $$selectedVal : $$selectedVal[0]
-                )
-              }
+        _c("div", { staticClass: "input-group-prepend" }),
+        _vm._v(" "),
+        _c("input", {
+          directives: [
+            {
+              name: "model",
+              rawName: "v-model",
+              value: _vm.searchInput,
+              expression: "searchInput"
             }
-          },
-          _vm._l(_vm.cryptoNames, function(cryptoName) {
-            return _c(
-              "option",
-              { key: cryptoName, domProps: { value: cryptoName } },
-              [_vm._v(" " + _vm._s(cryptoName[0]) + " ")]
-            )
-          })
-        )
+          ],
+          staticClass: "form-control",
+          attrs: { type: "text", placeholder: "Search for coins" },
+          domProps: { value: _vm.searchInput },
+          on: {
+            input: function($event) {
+              if ($event.target.composing) {
+                return
+              }
+              _vm.searchInput = $event.target.value
+            }
+          }
+        })
       ]),
+      _vm._v(" "),
+      _c(
+        "ul",
+        { staticClass: "list-group mb-2 searchResult" },
+        _vm._l(_vm.searchResults, function(result) {
+          return typeof result !== "undefined"
+            ? _c(
+                "li",
+                {
+                  key: result,
+                  staticClass: "list-group-item",
+                  class: { active: result.id == _vm.selectedCoinId },
+                  on: {
+                    click: function($event) {
+                      _vm.getCoin(result)
+                    }
+                  }
+                },
+                [_vm._v(" " + _vm._s(result.name))]
+              )
+            : _vm._e()
+        })
+      ),
       _vm._v(" "),
       _c("div", { staticClass: "input-group mb-2" }, [
         _vm._m(0),
@@ -53529,6 +53592,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
@@ -53537,57 +53603,91 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       transaction: {
         selectedCrypto: {},
         quantity: null
-      }
+      },
+      listings: {},
+      searchInput: null,
+      searchResults: [],
+      selectedCoinId: null
     };
   },
   created: function created() {
-    this.fetchCryptoNames();
+    this.getListings();
+  },
+  mounted: function mounted() {
+    $("#background").height(0);
+
+    var scrollHeight = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight, document.body.offsetHeight, document.documentElement.offsetHeight, document.body.clientHeight, document.documentElement.clientHeight);
+
+    $("#background").height(scrollHeight);
+    window.dispatchEvent(new Event("resize"));
   },
 
 
   methods: {
-    fetchCryptoNames: function fetchCryptoNames() {
-      var _this = this;
-
-      fetch("buy/crypto_names").then(function (res) {
-        return res.json();
-      }).then(function (res) {
-        _this.cryptoNames = res;
-      }).catch(function (err) {
-        return console.log(err);
-      });
-    },
     sell: function sell() {
-      if (typeof this.transaction.selectedCrypto[0] !== "undefined" && this.transaction.quantity !== null && this.transaction.quantity > 0) {
+      if (typeof this.transaction.selectedCrypto !== "undefined" && this.transaction.quantity !== null && this.transaction.quantity > 0) {
         this.$http.post("sell", this.transaction).then(function (data) {
           console.log(data.body);
           if (isNaN(data.body)) {
-            window.location.href = data.body;
+            // window.location.href = data.body;
           } else if (data.body == 0) {
             window.alert("Not enough cryptocurrency in your wallet.");
           } else {
             if (confirm("The prices just changed. New Price: " + this.round(data.body) + "| New Amout: " + this.round(data.body * this.transaction.quantity) + "| Do you accept the transaction? ")) {
-              this.transaction.selectedCrypto[1] = this.round(data.body);
+              this.transaction.selectedCrypto.quotes.EUR.price = this.round(data.body);
               this.sell();
             }
           }
         });
       }
     },
+    getCoin: function getCoin(coin) {
+      window.console.log(coin.name);
+      this.selectedCoinId = coin.id;
+
+      this.$http.get("api/coin/" + coin.id).then(function (data) {
+        this.transaction.selectedCrypto = data.body.data;
+
+        window.console.log(this.transaction.selectedCrypto);
+      });
+    },
+    getListings: function getListings() {
+      this.$http.get("api/listings").then(function (data) {
+        this.listings = data.body.data;
+        window.console.log(this.listings);
+      });
+    },
+    onSearchInput: function onSearchInput() {
+      window.console.log();
+    },
     round: function round(amount) {
       return Math.round(amount * 100) / 100;
     }
   },
-
   computed: {
     newAmount: function newAmount() {
-      if (isNaN(this.transaction.quantity) || typeof this.transaction.selectedCrypto[0] !== "string") {
+      if (isNaN(this.transaction.quantity) || typeof this.transaction.selectedCrypto == "null") {
         return "";
       } else {
         if (this.transaction.quantity > 0) {
-          return this.round(this.transaction.quantity * this.transaction.selectedCrypto[1]);
+          return this.round(this.transaction.quantity * this.transaction.selectedCrypto.quotes.EUR.price);
         }
       }
+    }
+  },
+
+  watch: {
+    searchInput: function searchInput(val) {
+      var result = [];
+      var i = 0;
+      this.listings.forEach(function (listing) {
+        if (listing.name.toUpperCase().includes(val.toUpperCase()) && i < 10) {
+          result[i] = listing;
+          i++;
+        }
+      });
+      window.console.log(result);
+      this.searchResults = result;
     }
   }
 });
@@ -53605,46 +53705,53 @@ var render = function() {
       _c("h2", [_vm._v("Sell Cryptocurrencies")]),
       _vm._v(" "),
       _c("div", { staticClass: "input-group mb-2" }, [
-        _c(
-          "select",
-          {
-            directives: [
-              {
-                name: "model",
-                rawName: "v-model",
-                value: _vm.transaction.selectedCrypto,
-                expression: "transaction.selectedCrypto"
-              }
-            ],
-            staticClass: "custom-select",
-            attrs: { id: "inputGroupSelect01", placholder: "cryptocurrency" },
-            on: {
-              change: function($event) {
-                var $$selectedVal = Array.prototype.filter
-                  .call($event.target.options, function(o) {
-                    return o.selected
-                  })
-                  .map(function(o) {
-                    var val = "_value" in o ? o._value : o.value
-                    return val
-                  })
-                _vm.$set(
-                  _vm.transaction,
-                  "selectedCrypto",
-                  $event.target.multiple ? $$selectedVal : $$selectedVal[0]
-                )
-              }
+        _c("div", { staticClass: "input-group-prepend" }),
+        _vm._v(" "),
+        _c("input", {
+          directives: [
+            {
+              name: "model",
+              rawName: "v-model",
+              value: _vm.searchInput,
+              expression: "searchInput"
             }
-          },
-          _vm._l(_vm.cryptoNames, function(cryptoName) {
-            return _c(
-              "option",
-              { key: cryptoName, domProps: { value: cryptoName } },
-              [_vm._v(" " + _vm._s(cryptoName[0]) + " ")]
-            )
-          })
-        )
+          ],
+          staticClass: "form-control",
+          attrs: { type: "text", placeholder: "Search for coins" },
+          domProps: { value: _vm.searchInput },
+          on: {
+            input: function($event) {
+              if ($event.target.composing) {
+                return
+              }
+              _vm.searchInput = $event.target.value
+            }
+          }
+        })
       ]),
+      _vm._v(" "),
+      _c(
+        "ul",
+        { staticClass: "list-group mb-2 searchResult" },
+        _vm._l(_vm.searchResults, function(result) {
+          return typeof result !== "undefined"
+            ? _c(
+                "li",
+                {
+                  key: result,
+                  staticClass: "list-group-item",
+                  class: { active: result.id == _vm.selectedCoinId },
+                  on: {
+                    click: function($event) {
+                      _vm.getCoin(result)
+                    }
+                  }
+                },
+                [_vm._v(" " + _vm._s(result.name))]
+              )
+            : _vm._e()
+        })
+      ),
       _vm._v(" "),
       _c("div", { staticClass: "input-group mb-2" }, [
         _vm._m(0),
@@ -53819,26 +53926,33 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
-      walletData: {}
+      walletData: []
     };
   },
   created: function created() {
     this.fetchData();
   },
+  mounted: function mounted() {
+    $("#background").height(0);
+
+    var scrollHeight = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight, document.body.offsetHeight, document.documentElement.offsetHeight, document.body.clientHeight, document.documentElement.clientHeight);
+
+    $("#background").height(scrollHeight);
+    window.dispatchEvent(new Event("resize"));
+  },
 
 
   methods: {
     fetchData: function fetchData() {
-      this.$http.get("data/wallet").then(function (data) {
-        // for (let i = 1; i < 101; i++) {
-        //   console.log(data.body.data[i]);
-        // }
+      var a = this;
 
-        this.walletData = data.body;
-        console.log(this.walletData);
-        // Object.keys(data.body.data).forEach(function(key, index) {
-        //   console.log(this[key].rank);
-        // }, data.body.data);
+      this.$http.get("data/wallet").then(function (data) {
+        data.body.forEach(function (coin, index) {
+          window.console.log(coin);
+          a.$http.get("api/coin/" + coin.coin_id).then(function (data) {
+            a.walletData.push([data.body.data.name, coin.quantity, data.body.data.quotes.EUR.price]);
+          });
+        });
       });
     },
     round: function round(amount) {
@@ -53870,15 +53984,15 @@ var render = function() {
           _vm._v(" "),
           _c(
             "tbody",
-            _vm._l(_vm.walletData, function(item, key) {
-              return _c("tr", { key: key }, [
+            _vm._l(_vm.walletData, function(coin) {
+              return _c("tr", { key: coin }, [
                 _c("th", { attrs: { scope: "row" } }, [
-                  _vm._v(" " + _vm._s(key) + " ")
+                  _vm._v(" " + _vm._s(coin[0]) + " ")
                 ]),
                 _vm._v(" "),
-                _c("td", [_vm._v(" " + _vm._s(item[1]) + " ")]),
+                _c("td", [_vm._v(" " + _vm._s(coin[1]) + " ")]),
                 _vm._v(" "),
-                _c("td", [_vm._v(_vm._s(_vm.round(item[1] * item[0])) + " ")])
+                _c("td", [_vm._v(_vm._s(_vm.round(coin[1] * coin[2])) + " ")])
               ])
             })
           )

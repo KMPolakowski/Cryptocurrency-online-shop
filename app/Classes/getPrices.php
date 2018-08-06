@@ -2,7 +2,7 @@
 
 namespace App\Classes;
 
-use App\Crypto_prices;
+use App\Coin_price;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
@@ -12,57 +12,37 @@ use DB;
 class getPrices
 {
 
-    public function fetchPrices()
+    public function fetchPrices($id)
     {
         $client = new Client(); //GuzzleHttp\Client
 
-        $request = new Request('GET', 'https://api.coinmarketcap.com/v2/ticker/?convert=EUR&limit=30');
-        $response = json_decode(($client->send($request))->getBody(), true);
+        $coin = json_decode ((string) ($client->get('https://api.coinmarketcap.com/v2/ticker/'.$id.'/?convert=EUR'))->getBody());
+        
 
+        $price = $coin->data->quotes->EUR->price;
 
-        $cryptoIds = [
-            1,
-            1027,
-            52,
-            1831,
-            1765,
-            2,
-            512,
-            2010,
-            1720,
-            825
-        ];
+        // CREATE NEW MIGRATION CALLED COINS THEN UPDATE THE REQUESTED COIN IF EXISTS OR CREATE NEW ONE
 
+        // THEN ADD APPROPRIATELY ON /BUY/PAY/SUCCESS 
 
+        $price_row = Coin_price::where('id', '=', $coin->data->id)->first();
 
-        Crypto_prices::truncate();
-
-        // DB::table('crypto_prices')->insert([
-        //     ['name' => $response->getBody()]
-        // ])
-
-
-
-        foreach ($cryptoIds as $cryptoId)
-        {  
-                $cryptoprice = new Crypto_prices();
-
-                $cryptoprice->id = $cryptoId;
-                $cryptoprice->name = $response['data'][$cryptoId]['name'];
-                $cryptoprice->priceEUR = $response['data'][$cryptoId]['quotes']['EUR']['price'];
-                $cryptoprice->volume_24h = $response['data'][$cryptoId]['quotes']['EUR']['volume_24h'];
-                $cryptoprice->market_cap = $response['data'][$cryptoId]['quotes']['EUR']['market_cap'];
-                $cryptoprice->percent_change_1h = $response['data'][$cryptoId]['quotes']['EUR']['percent_change_1h'];
-                $cryptoprice->percent_change_24h = $response['data'][$cryptoId]['quotes']['EUR']['percent_change_24h'];
-                $cryptoprice->percent_change_7d = $response['data'][$cryptoId]['quotes']['EUR']['percent_change_7d'];
-
-                $cryptoprice->save();
-         }
-
-
-        return true;
-
-
+        if($price_row !== null)
+        {
+            $coin_price = Coin_price::findOrFail($id);
+            $coin_price->priceEUR = $price;
+            $coin_price->save();
+        }
+        else
+        {
+            $coin_price = new Coin_price();
+            $coin_price->id = $coin->data->id;
+            $coin_price->symbol = $coin->data->symbol;
+            $coin_price->priceEUR = $price;
+            $coin_price->save();        
+        }
+        
+        return $price;
     }
 
     }

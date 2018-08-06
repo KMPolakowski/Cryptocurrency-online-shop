@@ -30,9 +30,9 @@ class User extends Authenticatable
     ];
 
 
-    public function cryptos()
+    public function coin_balances()
     {
-        return $this->hasOne('App\Crypto');
+        return $this->hasMany('App\Coin_balance');
     }
 
     public function balances()

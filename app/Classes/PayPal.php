@@ -28,21 +28,18 @@ class PayPal
     
     public function pay($selectedCrypto, $quantity)
     {
-        // $total = $quantity * 1000;
         $getPrices = new getPrices(); 
 
-
-        $getPrices->fetchPrices();
-
+        $actualPrice = $getPrices->fetchPrices($selectedCrypto["id"]);
         $quantity = round($quantity, 8);
 
-        $price = Crypto_prices::where('name', $selectedCrypto[0])->first()->priceEUR;
-
+        $price = $selectedCrypto["quotes"]["EUR"]["price"];
         
 
-        if(round($price, 2) !== round($selectedCrypto[1], 2))
+
+        if(round($actualPrice, 2) !== round($price, 2))
         {
-                return $price;
+                return $actualPrice;
         }
 
 
@@ -61,10 +58,10 @@ class PayPal
     $payer->setPaymentMethod("paypal");
 
     $item1 = new Item();
-    $item1->setName($selectedCrypto[0])
+    $item1->setName($selectedCrypto["name"])
     ->setCurrency('EUR')
     ->setQuantity(1)
-    ->setSku($selectedCrypto[0]) // Similar to `item_number` in Classic API
+    ->setSku($selectedCrypto["id"]) // Similar to `item_number` in Classic API
     ->setPrice($total);
 
     $itemList = new ItemList();
@@ -84,7 +81,7 @@ class PayPal
     ->setDescription($quantity)
     ->setInvoiceNumber(uniqid());
 
-        $redirectUrls = new RedirectUrls();
+    $redirectUrls = new RedirectUrls();
     $redirectUrls->setReturnUrl("http://buycryptos.com/buy/pay/success")
     ->setCancelUrl("http://buycryptos.com");
 
