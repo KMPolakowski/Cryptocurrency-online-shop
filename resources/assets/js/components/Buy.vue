@@ -18,7 +18,7 @@
 
 <ul class="list-group mb-2 searchResult">
 
-  <li class="list-group-item" @click="getCoin(result)" :class="{active: result.id == selectedCoinId}" v-for="result in searchResults" v-bind:key="result" v-if="typeof result !== 'undefined'"> {{result.name}}</li>
+  <li class="list-group-item" @click="getCoin(result)" :class="{active: result[0] == selectedCoinId}" v-for="result in searchResults" v-bind:key="result" v-if="typeof result !== 'undefined'"> {{result[1] }}</li>
 
 </ul>
 
@@ -99,6 +99,7 @@ export default {
       ) {
         this.$http.post("buy/pay", this.transaction).then(function(data) {
           if (isNaN(data.body)) {
+            // window.console.log(data.body);
             window.location.href = data.body;
           } else {
             if (
@@ -110,9 +111,7 @@ export default {
                   "| Do you accept the transaction? "
               )
             ) {
-              this.transaction.selectedCrypto.quotes.EUR.price = this.round(
-                data.body
-              );
+              this.transaction.selectedCrypto.priceEUR = this.round(data.body);
               // console.log(this.transaction.selectedCrypto[1]);
               this.pay();
             }
@@ -122,25 +121,26 @@ export default {
     },
 
     getCoin(coin) {
-      window.console.log(coin.name);
-      this.selectedCoinId = coin.id;
+      window.console.log(coin[1]);
+      this.selectedCoinId = coin[0];
 
-      this.$http.get("api/coin/" + coin.id).then(function(data) {
-        this.transaction.selectedCrypto = data.body.data;
+      this.$http.get("api/coin_price/" + coin[0]).then(function(data) {
+        this.transaction.selectedCrypto.id = coin[0];
+        this.transaction.selectedCrypto.priceEUR = data.body[0];
 
-        window.console.log(this.transaction.selectedCrypto);
+        window.console.log(this.transaction.selectedCrypto.priceEUR);
       });
     },
 
     getListings() {
-      this.$http.get("api/listings").then(function(data) {
-        this.listings = data.body.data;
+      this.$http.get("api/internal_listings").then(function(data) {
+        this.listings = data.body;
         window.console.log(this.listings);
       });
     },
 
     onSearchInput() {
-      window.console.log();
+      // window.console.log();
     },
 
     round(amount) {
@@ -158,8 +158,7 @@ export default {
       } else {
         if (this.transaction.quantity > 0) {
           return this.round(
-            this.transaction.quantity *
-              this.transaction.selectedCrypto.quotes.EUR.price
+            this.transaction.quantity * this.transaction.selectedCrypto.priceEUR
           );
         }
       }
@@ -171,7 +170,7 @@ export default {
       let result = [];
       let i = 0;
       this.listings.forEach(function(listing) {
-        if (listing.name.toUpperCase().includes(val.toUpperCase()) && i < 10) {
+        if (listing[1].toUpperCase().includes(val.toUpperCase()) && i < 10) {
           result[i] = listing;
           i++;
         }

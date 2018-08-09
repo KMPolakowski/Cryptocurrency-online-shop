@@ -24,6 +24,10 @@
                         <td>{{ round(coin[1] * coin[2]) }} </td>
                     </tr>
 
+                    <tr>
+                      <td> Your Api Token for (GET) /api/my_transactions: {{ api_token }} </td>
+                    </tr>
+
                 </tbody>
 
             </table>
@@ -42,7 +46,8 @@
 export default {
   data() {
     return {
-      walletData: []
+      walletData: [],
+      api_token: null
     };
   },
   created() {
@@ -80,6 +85,10 @@ export default {
             ]);
           });
         });
+      });
+
+      this.$http.get("data/api_token").then(function(data) {
+        this.api_token = data.body;
       });
     },
     round(amount) {

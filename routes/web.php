@@ -18,12 +18,14 @@ Route::post('sell', 'PaymentController@sell');
 
 Route::get('/wallet', 'PagesController@index');
 Route::get('/data/wallet', 'WalletController@index');
+Route::get('/data/api_token', 'WalletController@getToken');
 
 Route::get('buy/crypto_names', 'PaymentController@getCryptoNames');
 Route::post('buy/pay', 'PaymentController@pay');
 Route::get('buy/pay/success', 'PaymentController@success');
 
 Route::get('test', 'PaymentController@getCryptoNames');
+
 
 
 Auth::routes();

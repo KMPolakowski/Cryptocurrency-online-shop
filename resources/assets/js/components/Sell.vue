@@ -98,9 +98,9 @@ export default {
         this.transaction.quantity > 0
       ) {
         this.$http.post("sell", this.transaction).then(function(data) {
-          console.log(data.body);
+          // console.log(data.body);
           if (isNaN(data.body)) {
-            // window.location.href = data.body;
+            window.location.href = data.body;
           } else if (data.body == 0) {
             window.alert("Not enough cryptocurrency in your wallet.");
           } else {
@@ -124,25 +124,25 @@ export default {
     },
 
     getCoin(coin) {
-      window.console.log(coin.name);
+      // window.console.log(coin.name);
       this.selectedCoinId = coin.id;
 
       this.$http.get("api/coin/" + coin.id).then(function(data) {
         this.transaction.selectedCrypto = data.body.data;
 
-        window.console.log(this.transaction.selectedCrypto);
+        // window.console.log(this.transaction.selectedCrypto);
       });
     },
 
     getListings() {
       this.$http.get("api/listings").then(function(data) {
         this.listings = data.body.data;
-        window.console.log(this.listings);
+        // window.console.log(this.listings);
       });
     },
 
     onSearchInput() {
-      window.console.log();
+      // window.console.log();
     },
 
     round(amount) {

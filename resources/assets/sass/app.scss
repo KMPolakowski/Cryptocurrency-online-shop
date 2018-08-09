@@ -53,7 +53,8 @@
 
 body {
   background-image: url("/img/background.jpg");
-  background-size: 100% auto;
+  background-size: cover;
+  background-attachment: fixed;
 }
 
 .navbar-laravel {
@@ -67,7 +68,7 @@ body {
 .table-dark {
   color: white;
   background-color: transparent;
-  border-color: white;
+  border-color: rgb(248, 138, 138);
 }
 
 tr {

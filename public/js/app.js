@@ -53285,10 +53285,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       if (typeof this.transaction.selectedCrypto !== "undefined" && this.transaction.quantity !== null && this.transaction.quantity > 0) {
         this.$http.post("buy/pay", this.transaction).then(function (data) {
           if (isNaN(data.body)) {
+            // window.console.log(data.body);
             window.location.href = data.body;
           } else {
             if (confirm("The prices just changed. New Price: " + this.round(data.body) + "| New Amout: " + this.round(data.body * this.transaction.quantity) + "| Do you accept the transaction? ")) {
-              this.transaction.selectedCrypto.quotes.EUR.price = this.round(data.body);
+              this.transaction.selectedCrypto.priceEUR = this.round(data.body);
               // console.log(this.transaction.selectedCrypto[1]);
               this.pay();
             }
@@ -53297,23 +53298,24 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       }
     },
     getCoin: function getCoin(coin) {
-      window.console.log(coin.name);
-      this.selectedCoinId = coin.id;
+      window.console.log(coin[1]);
+      this.selectedCoinId = coin[0];
 
-      this.$http.get("api/coin/" + coin.id).then(function (data) {
-        this.transaction.selectedCrypto = data.body.data;
+      this.$http.get("api/coin_price/" + coin[0]).then(function (data) {
+        this.transaction.selectedCrypto.id = coin[0];
+        this.transaction.selectedCrypto.priceEUR = data.body[0];
 
-        window.console.log(this.transaction.selectedCrypto);
+        window.console.log(this.transaction.selectedCrypto.priceEUR);
       });
     },
     getListings: function getListings() {
-      this.$http.get("api/listings").then(function (data) {
-        this.listings = data.body.data;
+      this.$http.get("api/internal_listings").then(function (data) {
+        this.listings = data.body;
         window.console.log(this.listings);
       });
     },
     onSearchInput: function onSearchInput() {
-      window.console.log();
+      // window.console.log();
     },
     round: function round(amount) {
       return Math.round(amount * 100) / 100;
@@ -53326,7 +53328,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         return "";
       } else {
         if (this.transaction.quantity > 0) {
-          return this.round(this.transaction.quantity * this.transaction.selectedCrypto.quotes.EUR.price);
+          return this.round(this.transaction.quantity * this.transaction.selectedCrypto.priceEUR);
         }
       }
     }
@@ -53337,7 +53339,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       var result = [];
       var i = 0;
       this.listings.forEach(function (listing) {
-        if (listing.name.toUpperCase().includes(val.toUpperCase()) && i < 10) {
+        if (listing[1].toUpperCase().includes(val.toUpperCase()) && i < 10) {
           result[i] = listing;
           i++;
         }
@@ -53396,14 +53398,14 @@ var render = function() {
                 {
                   key: result,
                   staticClass: "list-group-item",
-                  class: { active: result.id == _vm.selectedCoinId },
+                  class: { active: result[0] == _vm.selectedCoinId },
                   on: {
                     click: function($event) {
                       _vm.getCoin(result)
                     }
                   }
                 },
-                [_vm._v(" " + _vm._s(result.name))]
+                [_vm._v(" " + _vm._s(result[1]))]
               )
             : _vm._e()
         })
@@ -53627,9 +53629,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     sell: function sell() {
       if (typeof this.transaction.selectedCrypto !== "undefined" && this.transaction.quantity !== null && this.transaction.quantity > 0) {
         this.$http.post("sell", this.transaction).then(function (data) {
-          console.log(data.body);
+          // console.log(data.body);
           if (isNaN(data.body)) {
-            // window.location.href = data.body;
+            window.location.href = data.body;
           } else if (data.body == 0) {
             window.alert("Not enough cryptocurrency in your wallet.");
           } else {
@@ -53642,23 +53644,23 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       }
     },
     getCoin: function getCoin(coin) {
-      window.console.log(coin.name);
+      // window.console.log(coin.name);
       this.selectedCoinId = coin.id;
 
       this.$http.get("api/coin/" + coin.id).then(function (data) {
         this.transaction.selectedCrypto = data.body.data;
 
-        window.console.log(this.transaction.selectedCrypto);
+        // window.console.log(this.transaction.selectedCrypto);
       });
     },
     getListings: function getListings() {
       this.$http.get("api/listings").then(function (data) {
         this.listings = data.body.data;
-        window.console.log(this.listings);
+        // window.console.log(this.listings);
       });
     },
     onSearchInput: function onSearchInput() {
-      window.console.log();
+      // window.console.log();
     },
     round: function round(amount) {
       return Math.round(amount * 100) / 100;
@@ -53922,11 +53924,16 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
-      walletData: []
+      walletData: [],
+      api_token: null
     };
   },
   created: function created() {
@@ -53953,6 +53960,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             a.walletData.push([data.body.data.name, coin.quantity, data.body.data.quotes.EUR.price]);
           });
         });
+      });
+
+      this.$http.get("data/api_token").then(function (data) {
+        this.api_token = data.body;
       });
     },
     round: function round(amount) {
@@ -53984,17 +53995,30 @@ var render = function() {
           _vm._v(" "),
           _c(
             "tbody",
-            _vm._l(_vm.walletData, function(coin) {
-              return _c("tr", { key: coin }, [
-                _c("th", { attrs: { scope: "row" } }, [
-                  _vm._v(" " + _vm._s(coin[0]) + " ")
-                ]),
-                _vm._v(" "),
-                _c("td", [_vm._v(" " + _vm._s(coin[1]) + " ")]),
-                _vm._v(" "),
-                _c("td", [_vm._v(_vm._s(_vm.round(coin[1] * coin[2])) + " ")])
+            [
+              _vm._l(_vm.walletData, function(coin) {
+                return _c("tr", { key: coin }, [
+                  _c("th", { attrs: { scope: "row" } }, [
+                    _vm._v(" " + _vm._s(coin[0]) + " ")
+                  ]),
+                  _vm._v(" "),
+                  _c("td", [_vm._v(" " + _vm._s(coin[1]) + " ")]),
+                  _vm._v(" "),
+                  _c("td", [_vm._v(_vm._s(_vm.round(coin[1] * coin[2])) + " ")])
+                ])
+              }),
+              _vm._v(" "),
+              _c("tr", [
+                _c("td", [
+                  _vm._v(
+                    " Your Api Token for (GET) /api/my_transactions: " +
+                      _vm._s(_vm.api_token) +
+                      " "
+                  )
+                ])
               ])
-            })
+            ],
+            2
           )
         ])
       ])
