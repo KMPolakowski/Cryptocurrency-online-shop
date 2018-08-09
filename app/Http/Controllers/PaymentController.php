@@ -16,6 +16,8 @@ use App\Coin_balance;
 use App\Coin_price;
 use App\Balance;
 
+use Predis;
+
 
 class PaymentController extends Controller
 {
@@ -49,6 +51,25 @@ class PaymentController extends Controller
 
         $coin_balance = Coin_balance::where('user_id', '=', auth()->user()->id)->where('coin_id', $coinId)->first();
 
+        if($result !== null)
+        {
+            $client = new Predis\Client();
+            
+            
+
+            $user = User::find(auth()->user()->id);
+
+            $index = $client->scard('transactionIndices');
+
+            $client->sadd('transactionIndices', $user->id.':'.$index);
+
+            date_default_timezone_set('Europe/Vienna');
+            $date = date('m/d/Y h:i:s a', time());
+
+            $client->hmset('transaction:'.$user->id.':'.$index, 'user_ID', $user->id, 'user_name', $user->name, 'transaction_type', 'purchase', 'coin_ID', $coinId, 'quantity', $buyingQuantity, 'paypal_payment_id', $paymentId, 'transaction_date_time', $date);
+            
+        }
+
         if($coin_balance == null)
         {
             $coin_balance = new Coin_balance();
@@ -78,27 +99,20 @@ class PaymentController extends Controller
         $user = User::find(auth()->user()->id);
         $coinId = $request->selectedCrypto["id"];
         $selectedCrypto = $request->selectedCrypto;
-
         $sellQuantity = $request->quantity;
-
         
-
         if($sellQuantity > 0)
         {
             
         $coin_balance = Coin_balance::where('user_id', '=', auth()->user()->id)->where('coin_id', $coinId)->first();
-
         if($coin_balance == null)
         {
             return 0;
         }
         $coinsOwned = $coin_balance->quantity;
-
-
         if($coinsOwned >= $sellQuantity)
         {
             $getPrices = new getPrices(); 
-
             $actualPrice = $getPrices->fetchPrices($coinId);
             $sellQuantity = round($sellQuantity, 8);
     
@@ -109,35 +123,35 @@ class PaymentController extends Controller
                     return $actualPrice;
             }
 
-
-
             $coin_balance->quantity = round($coinsOwned - $sellQuantity, 8);
             $coin_balance->save();
-
             $balance = Balance::find(auth()->user()->id);
             $balanceOwned = $balance->eur;
-            $balance->eur = $balanceOwned + round(($actualPrice * $sellQuantity), 2);
+            $additionalBalance = round(($actualPrice * $sellQuantity), 2);
+            $balance->eur = $balanceOwned + $additionalBalance;
             $balance->save();
+
+            $client = new Predis\Client();
             
 
+            $index = $client->scard('transactionIndices');
+
+            $client->sadd('transactionIndices', $user->id.':'.$index);
+
+            date_default_timezone_set('Europe/Vienna');
+            $date = date('m/d/Y h:i:s a', time());
+
+            $client->hmset('transaction:'.$user->id.':'.$index, 'user_ID', $user->id, 'user_name', $user->name, 'transaction_type', 'sale', 'total_eur', $additionalBalance, 'coin_ID', $coinId, 'quantity', $sellQuantity, 'transaction_date_time', $date);
+            
             return "/wallet";
         }
-
         else
         {
             return 0;
         }
-
     }
 
-    else
-    {
-        return 0;
-    }
 
-     
-    
-    }
-
+}
 
 }

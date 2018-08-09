@@ -21,6 +21,8 @@ use App\Crypto_prices;
 
 use DB;
 
+use Predis;
+
 
 
 class PayPal
@@ -28,12 +30,13 @@ class PayPal
     
     public function pay($selectedCrypto, $quantity)
     {
-        $getPrices = new getPrices(); 
+        $client = new Predis\Client();
 
-        $actualPrice = $getPrices->fetchPrices($selectedCrypto["id"]);
+        $actualPrice = $client->hmget('coin:'.$selectedCrypto["id"], 'priceEUR')[0];
+
         $quantity = round($quantity, 8);
 
-        $price = $selectedCrypto["quotes"]["EUR"]["price"];
+        $price = $selectedCrypto["priceEUR"];
         
 
 
@@ -58,7 +61,7 @@ class PayPal
     $payer->setPaymentMethod("paypal");
 
     $item1 = new Item();
-    $item1->setName($selectedCrypto["name"])
+    $item1->setName($selectedCrypto["id"])
     ->setCurrency('EUR')
     ->setQuantity(1)
     ->setSku($selectedCrypto["id"]) // Similar to `item_number` in Classic API

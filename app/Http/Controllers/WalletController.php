@@ -37,5 +37,15 @@ class WalletController extends Controller
 
     }
 
+    public function getToken()
+    {
+        $user_id = auth()->user()->id;
+        $user = User::find($user_id);
+        
+        $api_token = $user->api_token;;
+
+        return $api_token;
+    }
+
 
 }
