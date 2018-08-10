@@ -15,13 +15,13 @@ use PayPal\Api\RedirectUrls;
 use PayPal\Api\Transaction;
 use PayPal\Api\PaymentExecution;
 
-require '../vendor/autoload.php';
+require '../buycryptos/vendor/autoload.php';
 
 use App\Crypto_prices;
 
 use DB;
 
-use Predis;
+use App\Classes\predisClient;
 
 
 
@@ -30,7 +30,8 @@ class PayPal
     
     public function pay($selectedCrypto, $quantity)
     {
-        $client = new Predis\Client();
+        $predis = new predisClient();
+        $client = $predis->client();
 
         $actualPrice = $client->hmget('coin:'.$selectedCrypto["id"], 'priceEUR')[0];
 
@@ -85,8 +86,8 @@ class PayPal
     ->setInvoiceNumber(uniqid());
 
     $redirectUrls = new RedirectUrls();
-    $redirectUrls->setReturnUrl("http://buycryptos.com/buy/pay/success")
-    ->setCancelUrl("http://buycryptos.com");
+    $redirectUrls->setReturnUrl("http://ec2-54-93-191-148.eu-central-1.compute.amazonaws.com/buy/pay/success")
+    ->setCancelUrl("http://ec2-54-93-191-148.eu-central-1.compute.amazonaws.com");
 
 
     $payment = new Payment();
@@ -130,8 +131,7 @@ class PayPal
         $execution = new PaymentExecution();
         $execution->setPayerId($payerId);
 
-      
-
+    
         try {
         $result = $payment->execute($execution, $apiContext);
 

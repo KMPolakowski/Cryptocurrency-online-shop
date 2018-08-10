@@ -12,8 +12,9 @@ use DB;
 use App\User;
 
 use GuzzleHttp\Client;
+use App\Classes\predisClient;
+// use Predis;
 
-use Predis;
 
 
 
@@ -24,16 +25,18 @@ class ApiController extends Controller
     {
         $this->middleware('throttle:60,1', ['except' => ['getCryptoNames']]);
         $this->middleware('auth:api', ['except' => ['getCoinPrice', 'getDashboard', 'getInternalListings', 'getListings', 'getCoin']]);
+
+        
     }
 
     public function updatePrices()
     {
+        $predis = new predisClient();
+        $client = $predis->client();
 
         if(auth()->user()->id == 1)
         {
         $guzzClient = new Client(); //GuzzleHttp\Client
-
-        $client = new Predis\Client();
 
         for($i = 1; $i < 1600; $i+=100)
         {
@@ -54,14 +57,15 @@ class ApiController extends Controller
 
     public function updateListings()
     {
+        $predis = new predisClient();
+        $client = $predis->client();
+
         if(auth()->user()->id == 1)
         {
         $guzzleClient = new Client();
 
         $listings = json_decode((string) ($guzzleClient->get('https://api.coinmarketcap.com/v2/listings/'))->getBody());
-
-        $client = new Predis\Client();
-        
+      
 
         foreach($listings->data as $value)
         {
@@ -73,7 +77,9 @@ class ApiController extends Controller
 
     public function getCoinPrice($id)
     {
-        $client = new Predis\Client();
+        $predis = new predisClient();
+        $client = $predis->client();
+
         $price = $client->hmget('coin:'.$id, 'priceEUR');
         return $price;
     }
@@ -95,11 +101,11 @@ class ApiController extends Controller
 
     public function getAllTransactions()
     {
+        $predis = new predisClient();
+        $client = $predis->client();
+
         if(auth()->user()->id == 1)
         {
-
-        
-        $client = new Predis\Client();
         
         $transactions = [];
 
@@ -122,7 +128,8 @@ class ApiController extends Controller
 
     public function getMyTransactions()
     {
-        $client = new Predis\Client();
+        $predis = new predisClient();
+        $client = $predis->client();
         
         $userId = auth()->user()->id;
 
@@ -143,7 +150,9 @@ class ApiController extends Controller
 
     public function getInternalListings()
     {
-        $client = new Predis\Client();
+        $predis = new predisClient();
+        $client = $predis->client();
+
         
         $listings = [];
 
@@ -157,12 +166,14 @@ class ApiController extends Controller
 
     public function getListings()
     {
+
         $client = new Client(); //GuzzleHttp\Client
         $listings = ($client->get('https://api.coinmarketcap.com/v2/listings/'))->getBody();
         return $listings;
     }
     public function getCoin($id)
     {
+
         $client = new Client(); //GuzzleHttp\Client
         $coin = ($client->get('https://api.coinmarketcap.com/v2/ticker/'.$id.'/?convert=EUR'))->getBody();
         return $coin;

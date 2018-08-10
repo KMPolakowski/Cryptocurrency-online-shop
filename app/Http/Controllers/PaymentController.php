@@ -10,13 +10,13 @@ use Illuminate\Support\Facades\Input;
 use DB;
 
 use App\Classes\getPrices;
+use App\Classes\predisClient;
 
 use App\User;
 use App\Coin_balance;
 use App\Coin_price;
 use App\Balance;
 
-use Predis;
 
 
 class PaymentController extends Controller
@@ -53,10 +53,10 @@ class PaymentController extends Controller
 
         if($result !== null)
         {
-            $client = new Predis\Client();
+            $predis = new predisClient();
+            $client = $predis->client();
             
-            
-
+        
             $user = User::find(auth()->user()->id);
 
             $index = $client->scard('transactionIndices');
@@ -131,7 +131,8 @@ class PaymentController extends Controller
             $balance->eur = $balanceOwned + $additionalBalance;
             $balance->save();
 
-            $client = new Predis\Client();
+            $predis = new predisClient();
+            $client = $predis->client();
             
 
             $index = $client->scard('transactionIndices');
