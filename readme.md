@@ -9,5 +9,4 @@
 <li>Wallet.</li>
 <li>Single Page Application</li>
 </ul>
-<p><span style="font-size: 12pt;">Screenshots:</span></p>
 <p>&nbsp;</p>
